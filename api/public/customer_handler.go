@@ -94,7 +94,7 @@ func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
 
 	//otp, requestID, err := utils.GenerateTimedRandomDigits(req.Username,5,pr.Services.CustomerService.Config.OtpTtlMinutes)
 
-	utils.ServeJSONObject(w, "", http.StatusCreated, "Verified", nil, meta, true)
+	utils.ServeJSONObject(w, "", http.StatusOK, "Verified", nil, meta, true)
 }
 
 //// GetCustomer godoc
