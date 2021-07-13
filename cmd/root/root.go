@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/iamrz1/auth/cmd"
+	"github.com/iamrz1/ab-auth/cmd"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 	"log"

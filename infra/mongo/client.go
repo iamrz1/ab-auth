@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/iamrz1/auth/infra"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/utils"
+	"github.com/iamrz1/ab-auth/infra"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

@@ -1,7 +1,7 @@
 package health
 
 import (
-	"github.com/iamrz1/auth/utils"
+	"github.com/iamrz1/ab-auth/utils"
 	"net/http"
 )
 

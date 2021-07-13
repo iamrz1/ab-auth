@@ -2,8 +2,8 @@ package public
 
 import (
 	"github.com/go-chi/chi"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/service"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/service"
 )
 
 type publicRouter struct {

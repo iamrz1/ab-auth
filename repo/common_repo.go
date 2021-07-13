@@ -2,10 +2,10 @@ package repo
 
 import (
 	"fmt"
-	"github.com/iamrz1/auth/infra"
-	infraCache "github.com/iamrz1/auth/infra/cache"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/utils"
+	"github.com/iamrz1/ab-auth/infra"
+	infraCache "github.com/iamrz1/ab-auth/infra/cache"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/utils"
 	"log"
 	"time"
 )

@@ -1,4 +1,4 @@
-module github.com/iamrz1/auth
+module github.com/iamrz1/ab-auth
 
 go 1.15
 

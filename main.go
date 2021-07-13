@@ -1,4 +1,4 @@
-package auth
+package ab_auth
 
 // @title auth
 // @version 1.0

@@ -3,10 +3,10 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/iamrz1/auth/config"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/service"
-	"github.com/iamrz1/auth/utils"
+	"github.com/iamrz1/ab-auth/config"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/service"
+	"github.com/iamrz1/ab-auth/utils"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
@@ -16,7 +16,7 @@ import (
 	"github.com/go-chi/chi"
 	chiMiddleware "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
-	"github.com/iamrz1/auth/api/health"
+	"github.com/iamrz1/ab-auth/api/health"
 )
 
 func Start(cfg *config.AppConfig, svc *service.Config, logger logger.StructLogger) (*http.Server, error) {

@@ -2,10 +2,10 @@ package public
 
 import (
 	"encoding/json"
-	_ "github.com/iamrz1/auth/docs"
-	rest_error "github.com/iamrz1/auth/error"
-	"github.com/iamrz1/auth/model"
-	"github.com/iamrz1/auth/utils"
+	_ "github.com/iamrz1/ab-auth/docs"
+	rest_error "github.com/iamrz1/ab-auth/error"
+	"github.com/iamrz1/ab-auth/model"
+	"github.com/iamrz1/ab-auth/utils"
 	"net/http"
 )
 

@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"context"
-	"github.com/iamrz1/auth/api"
-	"github.com/iamrz1/auth/config"
-	infraCache "github.com/iamrz1/auth/infra/cache"
-	infraMongo "github.com/iamrz1/auth/infra/mongo"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/service"
+	"github.com/iamrz1/ab-auth/api"
+	"github.com/iamrz1/ab-auth/config"
+	infraCache "github.com/iamrz1/ab-auth/infra/cache"
+	infraMongo "github.com/iamrz1/ab-auth/infra/mongo"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/service"
 	"github.com/spf13/cobra"
 	"log"
 	"net/http"

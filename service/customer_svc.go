@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
-	"github.com/iamrz1/auth/config"
-	rest_error "github.com/iamrz1/auth/error"
-	"github.com/iamrz1/auth/infra"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/model"
-	"github.com/iamrz1/auth/repo"
-	"github.com/iamrz1/auth/utils"
+	"github.com/iamrz1/ab-auth/config"
+	rest_error "github.com/iamrz1/ab-auth/error"
+	"github.com/iamrz1/ab-auth/infra"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/model"
+	"github.com/iamrz1/ab-auth/repo"
+	"github.com/iamrz1/ab-auth/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"time"
 )

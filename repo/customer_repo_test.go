@@ -2,10 +2,10 @@ package repo
 
 import (
 	"context"
-	"github.com/iamrz1/auth/config"
-	infraMongo "github.com/iamrz1/auth/infra/mongo"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/model"
+	"github.com/iamrz1/ab-auth/config"
+	infraMongo "github.com/iamrz1/ab-auth/infra/mongo"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/model"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 	"log"

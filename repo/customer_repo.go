@@ -2,11 +2,11 @@ package repo
 
 import (
 	"context"
-	rest_error "github.com/iamrz1/auth/error"
-	"github.com/iamrz1/auth/infra"
-	infraCache "github.com/iamrz1/auth/infra/cache"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/model"
+	rest_error "github.com/iamrz1/ab-auth/error"
+	"github.com/iamrz1/ab-auth/infra"
+	infraCache "github.com/iamrz1/ab-auth/infra/cache"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"net/http"
 )

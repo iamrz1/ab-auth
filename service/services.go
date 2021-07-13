@@ -1,11 +1,11 @@
 package service
 
 import (
-	"github.com/iamrz1/auth/config"
-	"github.com/iamrz1/auth/infra"
-	infraCache "github.com/iamrz1/auth/infra/cache"
-	"github.com/iamrz1/auth/logger"
-	"github.com/iamrz1/auth/repo"
+	"github.com/iamrz1/ab-auth/config"
+	"github.com/iamrz1/ab-auth/infra"
+	infraCache "github.com/iamrz1/ab-auth/infra/cache"
+	"github.com/iamrz1/ab-auth/logger"
+	"github.com/iamrz1/ab-auth/repo"
 )
 
 // Config holds application configurations

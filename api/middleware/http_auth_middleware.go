@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/iamrz1/auth/utils"
+	"github.com/iamrz1/ab-auth/utils"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/metadata"
 	"log"

@@ -1,6 +1,6 @@
 package response
 
-import "github.com/iamrz1/auth/model"
+import "github.com/iamrz1/ab-auth/model"
 
 type RegistrationSuccessRes struct {
 }

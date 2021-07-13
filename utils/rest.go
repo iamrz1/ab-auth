@@ -2,7 +2,7 @@ package utils
 
 import (
 	"encoding/json"
-	rest_error "github.com/iamrz1/auth/error"
+	rest_error "github.com/iamrz1/ab-auth/error"
 	"log"
 	"net/http"
 )
