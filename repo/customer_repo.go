@@ -8,6 +8,7 @@ import (
 	"github.com/iamrz1/ab-auth/logger"
 	"github.com/iamrz1/ab-auth/model"
 	"go.mongodb.org/mongo-driver/bson"
+	"log"
 	"net/http"
 )
 
@@ -70,6 +71,7 @@ func (pr *CustomerRepo) ListCustomers(ctx context.Context, selector interface{},
 
 func (pr *CustomerRepo) UpdateCustomer(ctx context.Context, filter, doc *model.Customer) (int64, error) {
 	if (*doc) == (model.Customer{}) {
+		log.Println("nothing to update")
 		return 0, rest_error.NewGenericError(http.StatusBadRequest, "Nothing to update")
 	}
 	matched, err := pr.DB.Update(ctx, pr.Table, filter, doc)

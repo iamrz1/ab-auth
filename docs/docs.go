@@ -30,7 +30,7 @@ var doc = `{
     "paths": {
         "/api/v1/public/customers/signup": {
             "post": {
-                "description": "Signup a new new customer for a valid non-existing phone number",
+                "description": "Signup a new customer for a valid non-existing phone number",
                 "consumes": [
                     "application/json"
                 ],
@@ -53,8 +53,8 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/response.EmptySuccessRes"
                         }

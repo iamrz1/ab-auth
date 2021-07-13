@@ -11,7 +11,7 @@ import (
 
 // Signup godoc
 // @Summary Signup a new customer
-// @Description Signup a new new customer for a valid non-existing phone number
+// @Description Signup a new customer for a valid non-existing phone number
 // @Tags Customers
 // @Accept  json
 // @Produce  json
