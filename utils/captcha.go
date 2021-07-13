@@ -12,13 +12,13 @@ import (
 
 // VerifyCaptcha verifies captcha value for an id
 func VerifyCaptcha(id, value string) (bool, error) {
-	sendError := fmt.Errorf("%s","Captcha veirification failed")
+	sendError := fmt.Errorf("%s", "Captcha veirification failed")
 
 	client := http.Client{Timeout: time.Minute * 2}
 
 	captchaBaseUrl := os.Getenv("CAPTCHA_BASE_URL")
 
-	b, err := json.Marshal(&map[string]string{"id":id, "value":value})
+	b, err := json.Marshal(&map[string]string{"id": id, "value": value})
 
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/api/v1/verify-captcha", captchaBaseUrl), bytes.NewReader(b))
 	if err != nil {
@@ -42,6 +42,5 @@ func VerifyCaptcha(id, value string) (bool, error) {
 		return false, sendError
 	}
 
-	return true,nil
+	return true, nil
 }
-

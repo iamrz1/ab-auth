@@ -24,7 +24,7 @@ const (
 	RealUserIpKey                = "X-Original-Forwarded-For"
 	UsernameKey                  = "username"
 	DefaultHashingIteration      = 1500
-	TryAgainMessage     = "Please try again later"
-	MaxOTPAttempt = 5
-	MaxLoginAttempt = 5
+	TryAgainMessage              = "Please try again later"
+	MaxOTPAttempt                = 50
+	MaxLoginAttempt              = 5
 )

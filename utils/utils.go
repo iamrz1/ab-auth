@@ -27,8 +27,8 @@ type NameValuePairs struct {
 	Value string `json:"value" bson:"value"`
 }
 
-var AlphaNumerics = [...]byte{'r', 'e', 'z', 'o', 'a', 'n', 't', 'm', 'l', '0','1','2','3','4','5','6','7','8','9'}
-var Digits = [...]byte{'0','1','2','3','4','5','6','7','8','9'}
+var AlphaNumerics = [...]byte{'r', 'e', 'z', 'o', 'a', 'n', 't', 'm', 'l', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
+var Digits = [...]byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
 
 func BoolP(in bool) *bool {
 	return &in
@@ -244,13 +244,12 @@ func GenerateTimedRandomDigits(key string, count, ttlMinutes int) (string, strin
 	randomDigits := getRandomText(count, Digits[:]) //get 5 digit OTP token
 	fullHash := fmt.Sprintf("%v.%v", generateHash(fmt.Sprintf("%v.%v.%v", key, randomDigits, ttl)), ttl)
 
-	return  randomDigits, fullHash, nil
+	return randomDigits, fullHash, nil
 }
 
 func GetRandomDigits(len int) string {
 	return getRandomText(len, Digits[:])
 }
-
 
 func getRandomText(count int, seed []byte) string {
 	b := make([]byte, count)

@@ -26,7 +26,7 @@ var doc = model.Customer{
 	Password:            "1111111",
 	RecoveryPhoneNumber: "01746410745",
 	Gender:              "male",
-	BirthDateString:           "",
+	BirthDateString:     "",
 	IsDeleted:           nil,
 }
 

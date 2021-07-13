@@ -13,11 +13,11 @@ type Customer struct {
 	Gender              string    `json:"gender,omitempty" bson:"gender,omitempty"`
 	BirthDate           time.Time `json:"-" bson:"birth_date,omitempty"`
 	BirthDateString     string    `json:"birth_date,omitempty" bson:"-"`
-	Status            string    `json:"status,omitempty" bson:"status,omitempty"`
+	Status              string    `json:"status,omitempty" bson:"status,omitempty"`
 	IsVerified          *bool     `json:"is_verified,omitempty"`
 	IsDeleted           *bool     `json:"is_deleted,omitempty"`
-	CreatedAt              time.Time      `json:"created_at,omitempty" bson:"created_at,omitempty"`
-	UpdatedAt              time.Time      `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	CreatedAt           time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
+	UpdatedAt           time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
 func (d *Customer) ToCustomerResponse() *Customer {
@@ -30,16 +30,16 @@ func (d *Customer) ToCustomerResponse() *Customer {
 }
 
 type CustomerSignupReq struct {
-	Username string `json:"username" validate:"nonzero"`
-	FullName string `json:"full_name" validate:"nonzero"`
-	Password string `json:"password" validate:"nonzero"`
-	CaptchaID string `json:"captcha_id" validate:"nonzero"`
+	Username     string `json:"username" validate:"nonzero"`
+	FullName     string `json:"full_name" validate:"nonzero"`
+	Password     string `json:"password" validate:"nonzero"`
+	CaptchaID    string `json:"captcha_id" validate:"nonzero"`
 	CaptchaValue string `json:"captcha_value" validate:"nonzero"`
 }
 
 type CustomerSignupVerificationReq struct {
 	Username string `json:"username" validate:"nonzero"`
-	OTP string `json:"otp" validate:"nonzero"`
+	OTP      string `json:"otp" validate:"nonzero"`
 }
 
 type CustomerListReq struct {

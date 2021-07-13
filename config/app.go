@@ -12,12 +12,12 @@ type AppConfig struct {
 	Environment     string
 	Host            string
 	Port            int
-	OtpTtlMinutes int
+	OtpTtlMinutes   int
 	GracefulTimeout int
 	DSN             string
 	Database        string
 	CustomerTable   string
-	CacheURL string
+	CacheURL        string
 }
 
 var myConfig *AppConfig
@@ -63,12 +63,12 @@ func LoadConfig() error {
 		Environment:     os.Getenv("ENV"),
 		Host:            os.Getenv("REST_HOST"),
 		Port:            port,
-		OtpTtlMinutes: otpttl,
+		OtpTtlMinutes:   otpttl,
 		GracefulTimeout: 30,
 		DSN:             dsn,
 		Database:        dbname,
 		CustomerTable:   ct,
-		CacheURL: cacheURL,
+		CacheURL:        cacheURL,
 	}
 
 	return nil

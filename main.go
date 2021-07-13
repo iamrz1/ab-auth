@@ -6,5 +6,5 @@ package ab_auth
 // @termsOfService tbd
 // @contact.name Rezoan Tamal
 // @contact.email my.full.name.in.lower.case@gmail.com
-// @host localhost:8080
+// @host https://auth-iamrz1.cloud.okteto.net
 // @BasePath /

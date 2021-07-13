@@ -1,28 +1,5 @@
 basePath: /
 definitions:
-  model.Customer:
-    properties:
-      birth_date:
-        type: string
-      created_at:
-        type: string
-      full_name:
-        type: string
-      gender:
-        type: string
-      is_deleted:
-        type: boolean
-      is_verified:
-        type: boolean
-      recovery_phone_number:
-        type: string
-      status:
-        type: string
-      updated_at:
-        type: string
-      username:
-        type: string
-    type: object
   model.CustomerSignupReq:
     properties:
       captcha_id:
@@ -36,12 +13,14 @@ definitions:
       username:
         type: string
     type: object
-  model.EmptyObject:
-    type: object
-  response.CustomerData:
+  model.CustomerSignupVerificationReq:
     properties:
-      object:
-        $ref: '#/definitions/model.Customer'
+      otp:
+        type: string
+      username:
+        type: string
+    type: object
+  model.EmptyObject:
     type: object
   response.CustomerErrData:
     properties:
@@ -59,18 +38,23 @@ definitions:
         example: false
         type: boolean
     type: object
-  response.CustomerSuccessRes:
+  response.EmptySuccessData:
+    properties:
+      object:
+        $ref: '#/definitions/model.EmptyObject'
+    type: object
+  response.EmptySuccessRes:
     properties:
       data:
-        $ref: '#/definitions/response.CustomerData'
+        $ref: '#/definitions/response.EmptySuccessData'
       message:
         example: success message
         type: string
       success:
-        example: true
+        example: false
         type: boolean
     type: object
-host: localhost:8080
+host: https://auth-iamrz1.cloud.okteto.net
 info:
   contact:
     email: my.full.name.in.lower.case@gmail.com
@@ -79,5 +63,74 @@ info:
   termsOfService: tbd
   title: auth
   version: "1.0"
-paths: {}
+paths:
+  /api/v1/public/customers/signup:
+    post:
+      consumes:
+      - application/json
+      description: Signup a new new customer for a valid non-existing phone number
+      parameters:
+      - description: All fields are mandatory
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerSignupReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.EmptySuccessRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+      summary: Signup a new customer
+      tags:
+      - Customers
+  /api/v1/public/customers/verify-signup:
+    post:
+      consumes:
+      - application/json
+      description: VerifySignUp uses user defined otp and matches it with existing
+        reference in cache to verify a signup
+      parameters:
+      - description: All fields are mandatory
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomerSignupVerificationReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.EmptySuccessRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+      summary: Verify a new customer using otp
+      tags:
+      - Customers
 swagger: "2.0"

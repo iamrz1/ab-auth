@@ -29,7 +29,6 @@ func validatePassword(password string) error {
 	}
 	eightOrMore = characters >= 8
 
-
 	if !special {
 		err = fmt.Errorf("%s", SpecialCharErrorMessage)
 	}
@@ -42,4 +41,3 @@ func validatePassword(password string) error {
 
 	return err
 }
-

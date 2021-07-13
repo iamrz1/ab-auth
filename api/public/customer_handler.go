@@ -16,11 +16,11 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param  Body body model.CustomerSignupReq true "All fields are mandatory"
-// @Success 200 {object} response.CustomerSuccessRes
+// @Success 200 {object} response.EmptySuccessRes
 // @Failure 400 {object} response.CustomerErrorRes
 // @Failure 404 {object} response.CustomerErrorRes
 // @Failure 500 {object} response.CustomerErrorRes
-// @PublicRouter /api/v1/public/customers/signup [post]
+// @Router /api/v1/public/customers/signup [post]
 func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 	req := model.CustomerSignupReq{}
 
@@ -49,8 +49,8 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 
 	var meta map[string]string
 
-	if pr.Services.CustomerService.Config.Environment != utils.EnvProduction{
-		meta = map[string]string{"otp":otp}
+	if pr.Services.CustomerService.Config.Environment != utils.EnvProduction {
+		meta = map[string]string{"otp": otp}
 	}
 
 	//otp, requestID, err := utils.GenerateTimedRandomDigits(req.Username,5,pr.Services.CustomerService.Config.OtpTtlMinutes)
@@ -58,44 +58,44 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 	utils.ServeJSONObject(w, "", http.StatusCreated, "OTP sent", nil, meta, true)
 }
 
-//// VerifySignUp godoc
-//// @Summary VerifySignUp Verify a new customer using otp
-//// @Description VerifySignUp uses user defined otp and matches it with existing reference in cache to verify a signup
-//// @Tags Customers
-//// @Accept  json
-//// @Produce  json
-//// @Param  Body body model.CustomerSignupReq true "All fields are mandatory"
-//// @Success 200 {object} response.CustomerErrorRes
-//// @Failure 400 {object} response.CustomerErrorRes
-//// @Failure 404 {object} response.CustomerErrorRes
-//// @Failure 500 {object} response.CustomerErrorRes
-//// @PublicRouter /api/v1/public/customers/verify-signup [post]
-//func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
-//	req := model.CustomerSignupVerificationReq{}
-//
-//	err := json.NewDecoder(r.Body).Decode(&req)
-//	if err != nil {
-//		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
-//		return
-//	}
-//	err = model.Validate(req)
-//	if err != nil {
-//		utils.HandleObjectError(w, rest_error.NewValidationError("Missing required field(s)", err))
-//		return
-//	}
-//
-//	err = pr.Services.CustomerService.VerifyCustomerSignUp(r.Context(), &req)
-//	if err != nil {
-//		utils.HandleObjectError(w, err)
-//		return
-//	}
-//
-//	var meta map[string]string
-//
-//	//otp, requestID, err := utils.GenerateTimedRandomDigits(req.Username,5,pr.Services.CustomerService.Config.OtpTtlMinutes)
-//
-//	utils.ServeJSONObject(w, "", http.StatusCreated, "OTP sent", nil, meta, true)
-//}
+// VerifySignUp godoc
+// @Summary Verify a new customer using otp
+// @Description VerifySignUp uses user defined otp and matches it with existing reference in cache to verify a signup
+// @Tags Customers
+// @Accept  json
+// @Produce  json
+// @Param  Body body model.CustomerSignupVerificationReq true "All fields are mandatory"
+// @Success 200 {object} response.EmptySuccessRes
+// @Failure 400 {object} response.CustomerErrorRes
+// @Failure 404 {object} response.CustomerErrorRes
+// @Failure 500 {object} response.CustomerErrorRes
+// @Router /api/v1/public/customers/verify-signup [post]
+func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
+	req := model.CustomerSignupVerificationReq{}
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
+		return
+	}
+	err = model.Validate(req)
+	if err != nil {
+		utils.HandleObjectError(w, rest_error.NewValidationError("Missing required field(s)", err))
+		return
+	}
+
+	err = pr.Services.CustomerService.VerifyCustomerSignUp(r.Context(), &req)
+	if err != nil {
+		utils.HandleObjectError(w, err)
+		return
+	}
+
+	var meta map[string]string
+
+	//otp, requestID, err := utils.GenerateTimedRandomDigits(req.Username,5,pr.Services.CustomerService.Config.OtpTtlMinutes)
+
+	utils.ServeJSONObject(w, "", http.StatusCreated, "Verified", nil, meta, true)
+}
 
 //// GetCustomer godoc
 //// @Summary Get a single object
@@ -107,7 +107,7 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 //// @Failure 400 {object} response.CustomerErrorRes "Invalid request body, or missing required fields."
 //// @Failure 401 {object} response.CustomerErrorRes "Unauthorized access attempt."
 //// @Failure 500 {object} response.CustomerErrorRes "API sever or db unreachable."
-//// @PublicRouter /api/v1/public/generics/{slug} [get]
+//// @Router /api/v1/public/generics/{slug} [get]
 //func (pr *publicRouter) GetCustomer(w http.ResponseWriter, r *http.Request) {
 //	slug := chi.URLParam(r, "slug")
 //
@@ -133,7 +133,7 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 //// @Failure 400 {object} response.CustomerErrorRes
 //// @Failure 404 {object} response.CustomerErrorRes
 //// @Failure 500 {object} response.CustomerErrorRes
-//// @PublicRouter /api/v1/public/generics/{slug} [patch]
+//// @Router /api/v1/public/generics/{slug} [patch]
 //func (pr *publicRouter) UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 //	slug := chi.URLParam(r, "slug")
 //

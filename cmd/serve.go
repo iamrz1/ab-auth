@@ -25,7 +25,7 @@ var SrvCmd = &cobra.Command{
 }
 
 var db *infraMongo.Mongo
-var cache * infraCache.Redis
+var cache *infraCache.Redis
 
 func serve(cmd *cobra.Command, args []string) error {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -62,7 +62,7 @@ func StartServer() (*http.Server, error) {
 		return nil, err
 	}
 
-	cache = infraCache.NewCacheDB(cfg.CacheURL,"")
+	cache = infraCache.NewCacheDB(cfg.CacheURL, "")
 
 	svc := service.SetupServiceConfig(cfg, db, cache, logStruct)
 

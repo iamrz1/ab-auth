@@ -27,43 +27,113 @@ var doc = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {},
-    "definitions": {
-        "model.Customer": {
-            "type": "object",
-            "properties": {
-                "birth_date": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "gender": {
-                    "type": "string"
-                },
-                "is_deleted": {
-                    "type": "boolean"
-                },
-                "is_verified": {
-                    "type": "boolean"
-                },
-                "recovery_phone_number": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
+    "paths": {
+        "/api/v1/public/customers/signup": {
+            "post": {
+                "description": "Signup a new new customer for a valid non-existing phone number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Signup a new customer",
+                "parameters": [
+                    {
+                        "description": "All fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerSignupReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptySuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
                 }
             }
         },
+        "/api/v1/public/customers/verify-signup": {
+            "post": {
+                "description": "VerifySignUp uses user defined otp and matches it with existing reference in cache to verify a signup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Verify a new customer using otp",
+                "parameters": [
+                    {
+                        "description": "All fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerSignupVerificationReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptySuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
         "model.CustomerSignupReq": {
             "type": "object",
             "properties": {
@@ -84,16 +154,19 @@ var doc = `{
                 }
             }
         },
-        "model.EmptyObject": {
-            "type": "object"
-        },
-        "response.CustomerData": {
+        "model.CustomerSignupVerificationReq": {
             "type": "object",
             "properties": {
-                "object": {
-                    "$ref": "#/definitions/model.Customer"
+                "otp": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
+        },
+        "model.EmptyObject": {
+            "type": "object"
         },
         "response.CustomerErrData": {
             "type": "object",
@@ -119,11 +192,19 @@ var doc = `{
                 }
             }
         },
-        "response.CustomerSuccessRes": {
+        "response.EmptySuccessData": {
+            "type": "object",
+            "properties": {
+                "object": {
+                    "$ref": "#/definitions/model.EmptyObject"
+                }
+            }
+        },
+        "response.EmptySuccessRes": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/response.CustomerData"
+                    "$ref": "#/definitions/response.EmptySuccessData"
                 },
                 "message": {
                     "type": "string",
@@ -131,7 +212,7 @@ var doc = `{
                 },
                 "success": {
                     "type": "boolean",
-                    "example": true
+                    "example": false
                 }
             }
         }
@@ -150,7 +231,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
-	Host:        "localhost:8080",
+	Host:        "https://auth-iamrz1.cloud.okteto.net",
 	BasePath:    "/",
 	Schemes:     []string{},
 	Title:       "auth",

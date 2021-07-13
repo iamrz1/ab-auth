@@ -28,4 +28,3 @@ func IsValidPhoneNumber(phoneNumber string) bool {
 
 	return true
 }
-

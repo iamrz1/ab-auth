@@ -30,7 +30,7 @@ func (pr *publicRouter) customerRouter() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Post("/signup", pr.Signup)
-	//r.Post("/signup-verification", pr.VerifySignUp)
+	r.Post("/verify-signup", pr.VerifySignUp)
 	//r.Get("/", pr.ListGenerics)
 	//r.Get("/{slug}", pr.GetGeneric)
 	//r.Patch("/{slug}", pr.UpdateGeneric)
@@ -39,6 +39,3 @@ func (pr *publicRouter) customerRouter() *chi.Mux {
 
 	return r
 }
-
-
-

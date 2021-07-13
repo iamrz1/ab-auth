@@ -14,7 +14,7 @@ import (
 )
 
 type customerService struct {
-	CommonRepo *repo.CommonRepo
+	CommonRepo   *repo.CommonRepo
 	CustomerRepo *repo.CustomerRepo
 	Log          logger.StructLogger
 	Config       *config.AppConfig
@@ -22,7 +22,7 @@ type customerService struct {
 
 func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.CustomerRepo, logger logger.StructLogger) *customerService {
 	return &customerService{
-		CommonRepo: cm,
+		CommonRepo:   cm,
 		CustomerRepo: cs,
 		Log:          logger,
 		Config:       cfg,
@@ -32,22 +32,22 @@ func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.Cus
 func (gs *customerService) CreateCustomer(ctx context.Context, req *model.CustomerSignupReq) (string, error) {
 	err := validatePassword(req.Password)
 	if err != nil {
-		return "",rest_error.NewValidationError("", err)
+		return "", rest_error.NewValidationError("", err)
 	}
 
-	if !utils.IsValidPhoneNumber(req.Username){
-		return "",rest_error.NewValidationError("Phone number is not valid", nil)
+	if !utils.IsValidPhoneNumber(req.Username) {
+		return "", rest_error.NewValidationError("Phone number is not valid", nil)
 	}
 
 	c := &model.Customer{
-		Username:            req.Username,
-		FullName:            req.FullName,
-		Password:            utils.GetPasswordHash(req.Password),
-		Status:              utils.StatusActive,
-		IsVerified:          utils.BoolP(false),
-		IsDeleted:           utils.BoolP(false),
-		CreatedAt:           time.Now(),
-		UpdatedAt:           time.Now(),
+		Username:   req.Username,
+		FullName:   req.FullName,
+		Password:   utils.GetPasswordHash(req.Password),
+		Status:     utils.StatusActive,
+		IsVerified: utils.BoolP(false),
+		IsDeleted:  utils.BoolP(false),
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	_, err = gs.GetCustomer(ctx, &model.Customer{Username: c.Username})
@@ -65,7 +65,6 @@ func (gs *customerService) CreateCustomer(ctx context.Context, req *model.Custom
 		return "", err
 	}
 
-
 	otp := utils.GetRandomDigits(5)
 	// todo: send otp
 	gs.CommonRepo.SaveOTP(req.Username, otp)
@@ -74,13 +73,24 @@ func (gs *customerService) CreateCustomer(ctx context.Context, req *model.Custom
 }
 
 func (gs *customerService) VerifyCustomerSignUp(ctx context.Context, req *model.CustomerSignupVerificationReq) error {
-	if !utils.IsValidPhoneNumber(req.Username){
+	if !utils.IsValidPhoneNumber(req.Username) {
 		return rest_error.NewValidationError("Phone number is not valid", nil)
 	}
 
-	err := gs.CommonRepo.VerifyOTP(req.Username,"signup", req.OTP)
-	if err != nil{
-		return rest_error.NewValidationError("",err)
+	err := gs.CommonRepo.VerifyOTP(req.Username, "signup", req.OTP)
+	if err != nil {
+		return rest_error.NewValidationError("", err)
+	}
+
+	filter := &model.Customer{Username: req.Username}
+	update := &model.Customer{
+		IsVerified: utils.BoolP(true),
+		UpdatedAt:  time.Now(),
+	}
+
+	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, update)
+	if err != nil {
+		return err
 	}
 
 	return nil
