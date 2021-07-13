@@ -16,7 +16,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param  Body body model.CustomerSignupReq true "All fields are mandatory"
-// @Success 200 {object} response.EmptySuccessRes
+// @Success 201 {object} response.EmptySuccessRes
 // @Failure 400 {object} response.CustomerErrorRes
 // @Failure 404 {object} response.CustomerErrorRes
 // @Failure 500 {object} response.CustomerErrorRes
