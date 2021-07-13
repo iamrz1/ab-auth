@@ -1,0 +1,30 @@
+package utils
+
+import "time"
+
+const (
+	EnvProduction                = "prod"
+	StatusActive                 = "active"
+	StatusBlocked                = "blocked"
+	StatusInactive               = "inactive"
+	StatusPending                = "pending"
+	StatusAccepted               = "accepted"
+	StatusDeclined               = "declined"
+	StatusIncomplete             = "incomplete"
+	StatusCompleted              = "completed"
+	StatusBooked                 = "booked"
+	DateLayout                   = "2006-01-02T15:04:05.999999Z"
+	ISOLayout                    = "2006-01-02T15:04:05.000Z"
+	DateRangeLayout              = "02-01-2006"
+	SimpleDateLayout             = "Monday, 2 Jan 2006, 03:04:05 PM"
+	DefaultExpirationPeriod      = time.Hour * 24 * 7
+	AccessTokenExpirationPeriod  = time.Hour * 24
+	RefreshTokenExpirationPeriod = time.Hour * 24 * 7
+	KeyForSecretKey              = "Secret-Key"
+	RealUserIpKey                = "X-Original-Forwarded-For"
+	UsernameKey                  = "username"
+	DefaultHashingIteration      = 1500
+	TryAgainMessage     = "Please try again later"
+	MaxOTPAttempt = 5
+	MaxLoginAttempt = 5
+)
