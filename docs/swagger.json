@@ -116,9 +116,130 @@
                     }
                 }
             }
+        },
+        "/api/v1/public/customers/{username}": {
+            "patch": {
+                "description": "Update an existing generic object",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Update generic object",
+                "parameters": [
+                    {
+                        "description": "Some fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerProfileUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "model.Customer": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "occupation": {
+                    "type": "string"
+                },
+                "organization": {
+                    "type": "string"
+                },
+                "recovery_phone_number": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CustomerProfileUpdateReq": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string",
+                    "example": "male/female/other"
+                },
+                "occupation": {
+                    "type": "string"
+                },
+                "organization": {
+                    "type": "string"
+                }
+            }
+        },
         "model.CustomerSignupReq": {
             "type": "object",
             "properties": {
@@ -153,6 +274,14 @@
         "model.EmptyObject": {
             "type": "object"
         },
+        "response.CustomerData": {
+            "type": "object",
+            "properties": {
+                "object": {
+                    "$ref": "#/definitions/model.Customer"
+                }
+            }
+        },
         "response.CustomerErrData": {
             "type": "object",
             "properties": {
@@ -174,6 +303,22 @@
                 "success": {
                     "type": "boolean",
                     "example": false
+                }
+            }
+        },
+        "response.CustomerSuccessRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.CustomerData"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "success message"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },

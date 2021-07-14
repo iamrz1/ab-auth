@@ -10,6 +10,7 @@ import (
 	"github.com/iamrz1/ab-auth/repo"
 	"github.com/iamrz1/ab-auth/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"strings"
 	"time"
 )
 
@@ -46,8 +47,8 @@ func (gs *customerService) CreateCustomer(ctx context.Context, req *model.Custom
 		Status:     utils.StatusActive,
 		IsVerified: utils.BoolP(false),
 		IsDeleted:  utils.BoolP(false),
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		CreatedAt:  time.Now().UTC(),
+		UpdatedAt:  time.Now().UTC(),
 	}
 
 	_, err = gs.GetCustomer(ctx, &model.Customer{Username: c.Username})
@@ -85,7 +86,7 @@ func (gs *customerService) VerifyCustomerSignUp(ctx context.Context, req *model.
 	filter := &model.Customer{Username: req.Username}
 	update := &model.Customer{
 		IsVerified: utils.BoolP(true),
-		UpdatedAt:  time.Now(),
+		UpdatedAt:  time.Now().UTC(),
 	}
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, update)
@@ -137,7 +138,7 @@ func (gs *customerService) ListCustomers(ctx context.Context, req *model.Custome
 	return Customers, count, nil
 }
 
-func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.CustomerUpdateReq) (*model.Customer, error) {
+func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.CustomerProfileUpdateReq) (*model.Customer, error) {
 	filter := &model.Customer{Username: req.Username}
 	_, err := gs.CustomerRepo.GetCustomer(ctx, filter)
 	if err != nil {
@@ -147,7 +148,15 @@ func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.Custom
 		return nil, err
 	}
 
-	updateDoc := &model.Customer{}
+	updateDoc := &model.Customer{
+		FullName:     strings.TrimSpace(req.FullName),
+		Gender:       strings.ToLower(strings.TrimSpace(req.Gender)),
+		Email:        strings.ToLower(strings.TrimSpace(req.Email)),
+		Occupation:   strings.TrimSpace(req.Occupation),
+		Organization: strings.TrimSpace(req.Organization),
+		BirthDate:    utils.GetTimeFromISOString(req.BirthDate),
+		UpdatedAt:    time.Now().UTC(),
+	}
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
