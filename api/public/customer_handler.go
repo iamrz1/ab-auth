@@ -2,7 +2,6 @@ package public
 
 import (
 	"encoding/json"
-	"github.com/go-chi/chi"
 	_ "github.com/iamrz1/ab-auth/docs"
 	rest_error "github.com/iamrz1/ab-auth/error"
 	"github.com/iamrz1/ab-auth/model"
@@ -36,10 +35,12 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = utils.VerifyCaptcha(req.CaptchaID, req.CaptchaValue)
-	if err != nil {
-		utils.HandleObjectError(w, rest_error.NewValidationError("", err))
-		return
+	if pr.Services.CustomerService.Config.Environment == utils.EnvProduction || req.CaptchaValue != "11111" {
+		_, err = utils.VerifyCaptcha(req.CaptchaID, req.CaptchaValue)
+		if err != nil {
+			utils.HandleObjectError(w, rest_error.NewValidationError("", err))
+			return
+		}
 	}
 
 	otp, err := pr.Services.CustomerService.CreateCustomer(r.Context(), &req)
@@ -54,13 +55,11 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 		meta = map[string]string{"otp": otp}
 	}
 
-	//otp, requestID, err := utils.GenerateTimedRandomDigits(req.Username,5,pr.Services.CustomerService.Config.OtpTtlMinutes)
-
 	utils.ServeJSONObject(w, "", http.StatusCreated, "OTP sent", nil, meta, true)
 }
 
 // VerifySignUp godoc
-// @Summary Verify a new customer using otp
+// @Summary VerifyAccessToken a new customer using otp
 // @Description VerifySignUp uses user defined otp and matches it with existing reference in cache to verify a signup
 // @Tags Customers
 // @Accept  json
@@ -91,74 +90,42 @@ func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var meta map[string]string
-
-	//otp, requestID, err := utils.GenerateTimedRandomDigits(req.Username,5,pr.Services.CustomerService.Config.OtpTtlMinutes)
-
-	utils.ServeJSONObject(w, "", http.StatusOK, "Verified", nil, meta, true)
+	utils.ServeJSONObject(w, "", http.StatusOK, "Verified", nil, nil, true)
 }
 
-//// GetCustomer godoc
-//// @Summary Get a single object
-//// @Description Returns a single object matching the given id
-//// @Tags Customers
-//// @Produce  json
-//// @Param  slug path string true "slug of the target object"
-//// @Success 200 {object} response.CustomerSuccessRes
-//// @Failure 400 {object} response.CustomerErrorRes "Invalid request body, or missing required fields."
-//// @Failure 401 {object} response.CustomerErrorRes "Unauthorized access attempt."
-//// @Failure 500 {object} response.CustomerErrorRes "API sever or db unreachable."
-//// @Router /api/v1/public/generics/{slug} [get]
-//func (pr *publicRouter) GetCustomer(w http.ResponseWriter, r *http.Request) {
-//	slug := chi.URLParam(r, "slug")
-//
-//	req := &model.Customer{Username: slug}
-//
-//	data, err := pr.Services.CustomerService.GetCustomer(r.Context(), req)
-//	if err != nil {
-//		utils.HandleObjectError(w, err)
-//		return
-//	}
-//
-//	utils.ServeJSONObject(w, "", http.StatusOK, "Fetched generic object successfully", &data, nil, true)
-//}
-
-// UpdateCustomer godoc
-// @Summary Update generic object
-// @Description Update an existing generic object
+// Login godoc
+// @Summary Login as a customer
+// @Description Login uses user defined username and password to authenticate a user.
 // @Tags Customers
 // @Accept  json
 // @Produce  json
-// @Param  Body body model.CustomerProfileUpdateReq true "Some fields are mandatory"
-// @Success 200 {object} response.CustomerSuccessRes
+// @Param  Body body model.LoginReq true "All fields are mandatory"
+// @Success 200 {object} response.TokenSuccessRes
 // @Failure 400 {object} response.CustomerErrorRes
 // @Failure 404 {object} response.CustomerErrorRes
 // @Failure 500 {object} response.CustomerErrorRes
-// @Router /api/v1/public/customers/{username} [patch]
-func (pr *publicRouter) UpdateCustomer(w http.ResponseWriter, r *http.Request) {
-	username := chi.URLParam(r, "username")
+// @Router /api/v1/public/customers/login [post]
+func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
+	req := model.LoginReq{}
 
-	req := model.CustomerProfileUpdateReq{}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
 		return
 	}
-	req.Username = username
-
 	err = model.Validate(req)
 	if err != nil {
-		utils.HandleObjectError(w, rest_error.NewValidationError("missing required field(s)", err))
+		utils.HandleObjectError(w, rest_error.NewValidationError("Missing required field(s)", err))
 		return
 	}
 
-	data, err := pr.Services.CustomerService.UpdateCustomer(r.Context(), &req)
+	res, err := pr.Services.CustomerService.Login(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
 	}
 
-	utils.ServeJSONObject(w, "", http.StatusOK, "Updated generic object successfully", &data, nil, true)
+	utils.ServeJSONObject(w, "", http.StatusOK, "Logged in", res, nil, true)
 }
 
 //func (pr *publicRouter) PurgeCustomer(w http.ResponseWriter, r *http.Request) {

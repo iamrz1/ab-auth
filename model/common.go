@@ -13,3 +13,13 @@ type EmptyObject struct{}
 func Validate(s interface{}) error {
 	return validator.Validate(s)
 }
+
+type LoginReq struct {
+	Username string `json:"username" validate:"nonzero"`
+	Password string `json:"password" validate:"nonzero"`
+}
+
+type Token struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}

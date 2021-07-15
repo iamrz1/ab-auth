@@ -28,6 +28,238 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/private/customers/profile": {
+            "get": {
+                "description": "Returns user's profile using access token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Get basic profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body, or missing required fields.",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access attempt.",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "API sever or db unreachable.",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Update user's basic profile info",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Update basic profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Some fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CustomerProfileUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/customers/refresh-token": {
+            "get": {
+                "description": "Generate new access and refresh tokens using current refresh token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Refresh customer's access token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Value of refresh token",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TokenSuccessRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/customers/verify-token": {
+            "get": {
+                "description": "VerifyAccessToken lets apps to verify that a provided token is in-fact valid",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Verify customer's access token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Value of access token",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptySuccessRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/public/customers/login": {
+            "post": {
+                "description": "Login uses user defined username and password to authenticate a user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Login as a customer",
+                "parameters": [
+                    {
+                        "description": "All fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.LoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.TokenSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/public/customers/signup": {
             "post": {
                 "description": "Signup a new customer for a valid non-existing phone number",
@@ -92,7 +324,7 @@ var doc = `{
                 "tags": [
                     "Customers"
                 ],
-                "summary": "Verify a new customer using otp",
+                "summary": "VerifyAccessToken a new customer using otp",
                 "parameters": [
                     {
                         "description": "All fields are mandatory",
@@ -109,58 +341,6 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.EmptySuccessRes"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/public/customers/{username}": {
-            "patch": {
-                "description": "Update an existing generic object",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Update generic object",
-                "parameters": [
-                    {
-                        "description": "Some fields are mandatory",
-                        "name": "Body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.CustomerProfileUpdateReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.CustomerSuccessRes"
                         }
                     },
                     "400": {
@@ -289,19 +469,25 @@ var doc = `{
         "model.EmptyObject": {
             "type": "object"
         },
-        "response.CustomerData": {
+        "model.LoginReq": {
             "type": "object",
             "properties": {
-                "object": {
-                    "$ref": "#/definitions/model.Customer"
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },
-        "response.CustomerErrData": {
+        "model.Token": {
             "type": "object",
             "properties": {
-                "object": {
-                    "$ref": "#/definitions/model.EmptyObject"
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
                 }
             }
         },
@@ -309,7 +495,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/response.CustomerErrData"
+                    "$ref": "#/definitions/response.customerErrData"
                 },
                 "message": {
                     "type": "string",
@@ -325,7 +511,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/response.CustomerData"
+                    "$ref": "#/definitions/response.customerData"
                 },
                 "message": {
                     "type": "string",
@@ -337,19 +523,11 @@ var doc = `{
                 }
             }
         },
-        "response.EmptySuccessData": {
-            "type": "object",
-            "properties": {
-                "object": {
-                    "$ref": "#/definitions/model.EmptyObject"
-                }
-            }
-        },
         "response.EmptySuccessRes": {
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/response.EmptySuccessData"
+                    "$ref": "#/definitions/response.emptySuccessData"
                 },
                 "message": {
                     "type": "string",
@@ -358,6 +536,54 @@ var doc = `{
                 "success": {
                     "type": "boolean",
                     "example": false
+                }
+            }
+        },
+        "response.TokenSuccessRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.token"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "success message"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "response.customerData": {
+            "type": "object",
+            "properties": {
+                "object": {
+                    "$ref": "#/definitions/model.Customer"
+                }
+            }
+        },
+        "response.customerErrData": {
+            "type": "object",
+            "properties": {
+                "object": {
+                    "$ref": "#/definitions/model.EmptyObject"
+                }
+            }
+        },
+        "response.emptySuccessData": {
+            "type": "object",
+            "properties": {
+                "object": {
+                    "$ref": "#/definitions/model.EmptyObject"
+                }
+            }
+        },
+        "response.token": {
+            "type": "object",
+            "properties": {
+                "object": {
+                    "$ref": "#/definitions/model.Token"
                 }
             }
         }

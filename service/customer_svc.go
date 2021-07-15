@@ -10,6 +10,8 @@ import (
 	"github.com/iamrz1/ab-auth/repo"
 	"github.com/iamrz1/ab-auth/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"log"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -40,18 +42,7 @@ func (gs *customerService) CreateCustomer(ctx context.Context, req *model.Custom
 		return "", rest_error.NewValidationError("Phone number is not valid", nil)
 	}
 
-	c := &model.Customer{
-		Username:   req.Username,
-		FullName:   req.FullName,
-		Password:   utils.GetPasswordHash(req.Password),
-		Status:     utils.StatusActive,
-		IsVerified: utils.BoolP(false),
-		IsDeleted:  utils.BoolP(false),
-		CreatedAt:  time.Now().UTC(),
-		UpdatedAt:  time.Now().UTC(),
-	}
-
-	_, err = gs.GetCustomer(ctx, &model.Customer{Username: c.Username})
+	_, err = gs.GetCustomer(ctx, &model.Customer{Username: req.Username})
 	if err != nil {
 		if err != infra.ErrNotFound {
 			return "", rest_error.NewValidationError("", infra.ErrNotFound)
@@ -60,15 +51,15 @@ func (gs *customerService) CreateCustomer(ctx context.Context, req *model.Custom
 		return "", rest_error.NewValidationError("User already exists", err)
 	}
 
-	err = gs.CustomerRepo.CreateCustomer(ctx, c)
+	otp := utils.GetRandomDigits(5)
+	// todo: send otp
+	//gs.CommonRepo.SaveOTP(req.Username, otp)
+
+	err = gs.CustomerRepo.HoldCustomerRegistrationInCache(otp, req)
 	if err != nil {
 		gs.Log.Errorf("CreateCustomer", "", err.Error())
 		return "", err
 	}
-
-	otp := utils.GetRandomDigits(5)
-	// todo: send otp
-	gs.CommonRepo.SaveOTP(req.Username, otp)
 
 	return otp, nil
 }
@@ -78,23 +69,94 @@ func (gs *customerService) VerifyCustomerSignUp(ctx context.Context, req *model.
 		return rest_error.NewValidationError("Phone number is not valid", nil)
 	}
 
-	err := gs.CommonRepo.VerifyOTP(req.Username, "signup", req.OTP)
+	customerData, err := gs.CustomerRepo.GetCustomerRegistrationFromCache(req.Username, req.OTP)
 	if err != nil {
+		gs.Log.Errorf("VerifyCustomerSignUp", "", err.Error())
 		return rest_error.NewValidationError("", err)
 	}
 
-	filter := &model.Customer{Username: req.Username}
-	update := &model.Customer{
-		IsVerified: utils.BoolP(true),
-		UpdatedAt:  time.Now().UTC(),
+	c := &model.Customer{
+		Username:    customerData.Username,
+		FullName:    customerData.FullName,
+		Password:    utils.GetEncodedPassword(customerData.Password),
+		Status:      utils.StatusActive,
+		IsVerified:  utils.BoolP(true),
+		IsDeleted:   utils.BoolP(false),
+		CreatedAt:   time.Now().UTC(),
+		UpdatedAt:   time.Now().UTC(),
+		LastResetAt: time.Now().UTC(),
 	}
 
-	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, update)
+	err = gs.CustomerRepo.CreateCustomer(ctx, c)
 	if err != nil {
+		gs.Log.Errorf("VerifyCustomerSignUp", "", err.Error())
 		return err
 	}
 
 	return nil
+}
+
+func (gs *customerService) Login(ctx context.Context, req *model.LoginReq) (*model.Token, error) {
+	incorrectMsg := "Incorrect username or password"
+
+	g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: req.Username})
+	if err != nil {
+		gs.Log.Errorf("Login", "", err.Error())
+		return nil, rest_error.NewValidationError(incorrectMsg, nil)
+	}
+
+	if !utils.VerifyPassword(req.Password, g.Password) {
+		gs.Log.Errorf("Login", "", "password mismatch")
+		return nil, rest_error.NewValidationError(incorrectMsg, nil)
+	}
+
+	access, refresh := utils.GenerateTokens(g.Username, "", "customer")
+
+	return &model.Token{AccessToken: access, RefreshToken: refresh}, nil
+}
+
+//func (gs *customerService) Refresh(ctx context.Context, req *model.Token) (*model.Token, error) {
+//	//incorrectMsg := "Incorrect username or password"
+//
+//	//g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: req.Username})
+//	//if err != nil {
+//	//	gs.Log.Errorf("Login", "", err.Error())
+//	//	return nil, rest_error.NewValidationError(incorrectMsg, nil)
+//	//}
+//	//
+//	//if !utils.VerifyPassword(req.Password, g.Password) {
+//	//	gs.Log.Errorf("Login", "", "password mismatch")
+//	//	return nil, rest_error.NewValidationError(incorrectMsg, nil)
+//	//}
+//
+//	access, refresh := utils.GenerateTokens(g.Username, "", "customer")
+//
+//	return &model.Token{AccessToken: access, RefreshToken: refresh}, nil
+//}
+
+func (gs *customerService) GetShortProfile(ctx context.Context, req *model.Token) (*model.CustomerShort, error) {
+	claims, err := utils.VerifyToken(req.AccessToken, false)
+	if err != nil {
+		gs.Log.Errorf("VerifyAccessToken", "", err.Error())
+		return nil, rest_error.NewGenericError(http.StatusUnauthorized, err.Error())
+	}
+
+	g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: claims.Username})
+	if err != nil {
+		gs.Log.Errorf("VerifyAccessToken", "", err.Error())
+		return nil, rest_error.NewGenericError(http.StatusUnauthorized, "Invalid user")
+	}
+
+	if claims.IssuedAt < g.LastResetAt.Unix() {
+		log.Println("claims.IssuedAt:", claims.IssuedAt, "g.BirthDate.Unix():", g.LastResetAt.Unix())
+		return nil, rest_error.NewGenericError(http.StatusUnauthorized, "Inert token")
+	}
+
+	if claims.UserType != "customer" {
+		return nil, rest_error.NewGenericError(http.StatusUnauthorized, "Restricted to customers")
+	}
+
+	return g.ToShortResponse(), nil
 }
 
 func (gs *customerService) GetCustomer(ctx context.Context, req *model.Customer) (*model.Customer, error) {
@@ -103,7 +165,7 @@ func (gs *customerService) GetCustomer(ctx context.Context, req *model.Customer)
 		return nil, err
 	}
 
-	return g.ToCustomerResponse(), nil
+	return g.ToResponse(), nil
 }
 
 func (gs *customerService) ListCustomers(ctx context.Context, req *model.CustomerListReq) ([]*model.Customer, int64, error) {
@@ -126,7 +188,7 @@ func (gs *customerService) ListCustomers(ctx context.Context, req *model.Custome
 	}
 
 	for _, g := range Customers {
-		g = g.ToCustomerResponse()
+		g = g.ToResponse()
 	}
 
 	count, err := gs.CustomerRepo.CountCustomer(ctx, selector)
@@ -160,7 +222,7 @@ func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.Custom
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("UpdateCustomer", "", err.Error())
+		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
 		return nil, err
 	}
 
@@ -169,7 +231,7 @@ func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.Custom
 		return nil, err
 	}
 
-	return g.ToCustomerResponse(), nil
+	return g.ToResponse(), nil
 }
 
 func (gs *customerService) DeleteCustomer(ctx context.Context, delete *model.CustomerDeleteReq) (*model.Customer, error) {
@@ -188,7 +250,7 @@ func (gs *customerService) DeleteCustomer(ctx context.Context, delete *model.Cus
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("UpdateCustomer", "", err.Error())
+		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
 		return nil, err
 	}
 
@@ -200,7 +262,7 @@ func (gs *customerService) DeleteCustomer(ctx context.Context, delete *model.Cus
 		return nil, err
 	}
 
-	return g.ToCustomerResponse(), nil
+	return g.ToResponse(), nil
 }
 
 func (gs *customerService) PurgeCustomer(ctx context.Context, delete *model.CustomerDeleteReq) (*model.Customer, error) {
@@ -219,5 +281,5 @@ func (gs *customerService) PurgeCustomer(ctx context.Context, delete *model.Cust
 		return nil, err
 	}
 
-	return g.ToCustomerResponse(), nil
+	return g.ToResponse(), nil
 }

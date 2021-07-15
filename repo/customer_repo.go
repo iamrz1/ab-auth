@@ -2,6 +2,9 @@ package repo
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/go-redis/redis"
 	rest_error "github.com/iamrz1/ab-auth/error"
 	"github.com/iamrz1/ab-auth/infra"
 	infraCache "github.com/iamrz1/ab-auth/infra/cache"
@@ -10,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"net/http"
+	"time"
 )
 
 type CustomerRepo struct {
@@ -26,6 +30,50 @@ func NewCustomerRepo(db infra.DB, table string, cache *infraCache.Redis, log log
 		Table: table,
 		Log:   log,
 	}
+}
+
+func (pr *CustomerRepo) HoldCustomerRegistrationInCache(otp string, doc *model.CustomerSignupReq) error {
+	if (*doc) == (model.CustomerSignupReq{}) {
+		return rest_error.NewGenericError(http.StatusBadRequest, "Nothing to create")
+	}
+
+	data, err := json.Marshal(doc)
+	if err != nil {
+		pr.Log.Errorf("HoldCustomerRegistrationInCache", "", err.Error())
+		return err
+	}
+
+	scmd := pr.Cache.Client.Set(fmt.Sprintf("%s_%s", doc.Username, otp), data, time.Minute*6)
+	err = scmd.Err()
+	if err != nil {
+		pr.Log.Errorf("HoldCustomerRegistrationInCache", "", err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (pr *CustomerRepo) GetCustomerRegistrationFromCache(username, otp string) (*model.CustomerSignupReq, error) {
+	res := model.CustomerSignupReq{}
+	scmd := pr.Cache.Client.Get(fmt.Sprintf("%s_%s", username, otp))
+	err := scmd.Err()
+	if err != nil {
+		pr.Log.Errorf("GetCustomerRegistrationFromCache", "", err.Error())
+		if err == redis.Nil {
+			return nil, fmt.Errorf("%s", "Token expired")
+		}
+		return nil, err
+	}
+
+	b, err := scmd.Bytes()
+
+	err = json.Unmarshal(b, &res)
+	if err != nil {
+		pr.Log.Errorf("GetCustomerRegistrationFromCache", "", err.Error())
+		return nil, err
+	}
+
+	return &res, nil
 }
 
 func (pr *CustomerRepo) CreateCustomer(ctx context.Context, doc *model.Customer) error {
@@ -76,7 +124,7 @@ func (pr *CustomerRepo) UpdateCustomer(ctx context.Context, filter, doc *model.C
 	}
 	matched, err := pr.DB.Update(ctx, pr.Table, filter, doc)
 	if err != nil {
-		pr.Log.Errorf("UpdateCustomer", "", err.Error())
+		pr.Log.Errorf("UpdateCustomerProfile", "", err.Error())
 		return 0, err
 	}
 

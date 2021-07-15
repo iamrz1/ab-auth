@@ -17,6 +17,7 @@ const (
 	ISOLayout                    = "2006-01-02T15:04:05.000Z"
 	DateRangeLayout              = "02-01-2006"
 	SimpleDateLayout             = "Monday, 2 Jan 2006, 03:04:05 PM"
+	AuthorizationKey             = "authorization"
 	DefaultExpirationPeriod      = time.Hour * 24 * 7
 	AccessTokenExpirationPeriod  = time.Hour * 24
 	RefreshTokenExpirationPeriod = time.Hour * 24 * 7
@@ -27,4 +28,6 @@ const (
 	TryAgainMessage              = "Please try again later"
 	MaxOTPAttempt                = 50
 	MaxLoginAttempt              = 5
+	accessTokenKey               = "jdskhhiuewfhosfkaskfhajksfeiwhfuiowehfiwejdkfewudhuiewhjfdiu"
+	refreshTokenKey              = "fdshfjdshfjhdsjlfhuoashfuherifherhfuqheruifhiquwhfukwjnfjiwhl"
 )

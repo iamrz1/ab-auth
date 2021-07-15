@@ -213,7 +213,7 @@ func GetStringToByteArray(in string) []byte {
 	return []byte(in)
 }
 
-func GetPasswordHash(in string) string {
+func GetEncodedPassword(in string) string {
 	hashers.Iter = DefaultHashingIteration
 	hashPass, err := hashers.MakePassword(in)
 	if err != nil {
@@ -221,6 +221,17 @@ func GetPasswordHash(in string) string {
 	}
 
 	return hashPass
+}
+
+func VerifyPassword(plainPass, encodedPass string) bool {
+	hashers.Iter = DefaultHashingIteration
+	bl, err := hashers.CheckPassword(plainPass, encodedPass)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	return bl
 }
 
 func GenerateTimedRandomAlphaNumerics(key string, count, ttlMinutes int) (string, string, error) {

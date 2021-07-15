@@ -6,8 +6,8 @@ POST http://localhost:8080/api/v1/public/customers/signup
 Content-Type: application/json
 
 {
-  "captcha_id": "cCcQajVhyXhFKrcDXNe0",
-  "captcha_value": "23744",
+  "captcha_id": "A0CgOBgdAD1kvZ4b0cq1",
+  "captcha_value": "11111",
   "full_name": "Rezoan",
   "password": "Anondo2021!",
   "username": "01746410745"
@@ -19,41 +19,48 @@ POST http://localhost:8080/api/v1/public/customers/verify-signup
 Content-Type: application/json
 
 {
-  "otp": "16344",
+  "otp": "41761",
   "username": "01746410745"
 }
 
 ###
-
-POST http://localhost:8080/api/v1/public/customers/verify-signup
+POST http://localhost:8080/api/v1/public/customers/login
 Content-Type: application/json
 
 {
-  "otp": "16344",
+  "password": "Anondo2021!",
   "username": "01746410745"
 }
 
 ###
-
-POST http://localhost:8080/api/v1/public/customers/verify-signup
+PATCH http://localhost:8080/api/v1/private/customers/profile
 Content-Type: application/json
-
-{
-  "otp": "16344",
-  "username": "01746410745"
-}
-
-###
-PATCH http://localhost:8080/api/v1/public/customers/01746410745
-Content-Type: application/json
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ2Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2MzUxMjQ5LCJpYXQiOjE2MjYzNDk0NDl9.k1XSXcmaCa0Bvn6mKaPRLajRpx0i1iXwvTuyk_91vDU
 
 {
   "birth_date": "2006-01-02T15:04:05.000Z",
   "email": "me@you.com",
-  "full_name": "New Full Name",
+  "full_name": "Rezoan Tamal",
   "gender": "male",
   "occupation": "n/a",
   "organization": "n/a"
 }
 
 ###
+
+GET http://localhost:8080/api/v1/private/customers/profile
+Accept: application/json
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ2Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2MzUxNDA1LCJpYXQiOjE2MjYzNDk2MDV9.vO_jmO3CyiuTpP9rmC2Kq-YInRX6I_d4bRo3orfggEQ
+
+###
+
+GET http://localhost:8080/api/v1/private/customers/verify-token
+Accept: application/json
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ2Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2MzUxNDA1LCJpYXQiOjE2MjYzNDk2MDV9.vO_jmO3CyiuTpP9rmC2Kq-YInRX6I_d4bRo3orfggEQ
+
+###
+
+GET http://localhost:8080/api/v1/private/customers/refresh-token
+Accept: application/json
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ2Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6IiIsImV4cCI6MTYyNjk1NDI0OSwiaWF0IjoxNjI2MzQ5NDQ5fQ.Bvbvk6fIULgpq43lDMNkRhzZwz6EA3rpiJy-M--zxKY
+

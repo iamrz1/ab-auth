@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"github.com/iamrz1/ab-auth/utils"
 	"strings"
 	"time"
@@ -20,19 +21,34 @@ type Customer struct {
 	Status              string    `json:"status,omitempty" bson:"status,omitempty"`
 	IsVerified          *bool     `json:"is_verified,omitempty" bson:"is_verified,omitempty"`
 	IsDeleted           *bool     `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
+	LastResetAt         time.Time `json:"-" bson:"last_reset_at,omitempty"`
 	CreatedAt           time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdatedAt           time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
 }
 
-func (d *Customer) ToCustomerResponse() *Customer {
+func (d *Customer) ToResponse() *Customer {
 	if !d.BirthDate.IsZero() {
 		d.BirthDateString = d.BirthDate.Format(utils.ISOLayout)
 	}
 
 	d.Gender = strings.Title(d.Gender)
 
-	// todo: process d if needed
 	return d
+}
+
+func (d *Customer) ToShortResponse() *CustomerShort {
+	cs := CustomerShort{}
+
+	b, err := json.Marshal(d)
+	if err != nil {
+		return &cs
+	}
+
+	err = json.Unmarshal(b, &cs)
+	if err != nil {
+		return &cs
+	}
+	return &cs
 }
 
 type CustomerSignupReq struct {
@@ -71,4 +87,11 @@ type CustomerProfileUpdateReq struct {
 
 type CustomerDeleteReq struct {
 	Username string `json:"-" validate:"nonzero"`
+}
+
+type CustomerShort struct {
+	Username string `json:"username,omitempty"`
+	FullName string `json:"full_name,omitempty"`
+	Gender   string `json:"gender,omitempty"`
+	Status   string `json:"status,omitempty"`
 }

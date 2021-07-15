@@ -9,10 +9,10 @@ type RegistrationSuccessRes struct {
 type CustomerSuccessRes struct {
 	Success bool         `json:"success" example:"true"`
 	Message string       `json:"message" example:"success message"`
-	Data    CustomerData `json:"data"`
+	Data    customerData `json:"data"`
 }
 
-type CustomerData struct {
+type customerData struct {
 	Customer model.Customer `json:"object"`
 }
 
@@ -20,10 +20,10 @@ type CustomerData struct {
 type CustomerErrorRes struct {
 	Success bool            `json:"success" example:"false"`
 	Message string          `json:"message" example:"failure message"`
-	Data    CustomerErrData `json:"data"`
+	Data    customerErrData `json:"data"`
 }
 
-type CustomerErrData struct {
+type customerErrData struct {
 	Customer model.EmptyObject `json:"object"`
 }
 
@@ -31,10 +31,10 @@ type CustomerErrData struct {
 type CustomerListSuccessRes struct {
 	Success bool             `json:"success" example:"true"`
 	Message string           `json:"message" example:"success message"`
-	Data    CustomerListData `json:"data"`
+	Data    customerListData `json:"data"`
 }
 
-type CustomerListData struct {
+type customerListData struct {
 	Customers []model.Customer `json:"objects"`
 	Count     int64            `json:"count"`
 }
@@ -43,10 +43,20 @@ type CustomerListData struct {
 type CustomerListErrorRes struct {
 	Success bool                  `json:"success" example:"false"`
 	Message string                `json:"message" example:"failure message"`
-	Data    CustomerListErrorData `json:"data"`
+	Data    customerListErrorData `json:"data"`
 }
 
-type CustomerListErrorData struct {
+type customerListErrorData struct {
 	Customer []model.EmptyObject `json:"objects"`
 	Count    int64               `json:"count"`
+}
+
+type CustomerResShort struct {
+	Success bool          `json:"success" example:"false"`
+	Message string        `json:"message" example:"failure message"`
+	Data    customerShort `json:"data"`
+}
+
+type customerShort struct {
+	Customer model.CustomerShort `json:"object"`
 }

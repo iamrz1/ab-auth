@@ -68,20 +68,24 @@ definitions:
     type: object
   model.EmptyObject:
     type: object
-  response.CustomerData:
+  model.LoginReq:
     properties:
-      object:
-        $ref: '#/definitions/model.Customer'
+      password:
+        type: string
+      username:
+        type: string
     type: object
-  response.CustomerErrData:
+  model.Token:
     properties:
-      object:
-        $ref: '#/definitions/model.EmptyObject'
+      access_token:
+        type: string
+      refresh_token:
+        type: string
     type: object
   response.CustomerErrorRes:
     properties:
       data:
-        $ref: '#/definitions/response.CustomerErrData'
+        $ref: '#/definitions/response.customerErrData'
       message:
         example: failure message
         type: string
@@ -92,7 +96,7 @@ definitions:
   response.CustomerSuccessRes:
     properties:
       data:
-        $ref: '#/definitions/response.CustomerData'
+        $ref: '#/definitions/response.customerData'
       message:
         example: success message
         type: string
@@ -100,21 +104,47 @@ definitions:
         example: true
         type: boolean
     type: object
-  response.EmptySuccessData:
-    properties:
-      object:
-        $ref: '#/definitions/model.EmptyObject'
-    type: object
   response.EmptySuccessRes:
     properties:
       data:
-        $ref: '#/definitions/response.EmptySuccessData'
+        $ref: '#/definitions/response.emptySuccessData'
       message:
         example: success message
         type: string
       success:
         example: false
         type: boolean
+    type: object
+  response.TokenSuccessRes:
+    properties:
+      data:
+        $ref: '#/definitions/response.token'
+      message:
+        example: success message
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  response.customerData:
+    properties:
+      object:
+        $ref: '#/definitions/model.Customer'
+    type: object
+  response.customerErrData:
+    properties:
+      object:
+        $ref: '#/definitions/model.EmptyObject'
+    type: object
+  response.emptySuccessData:
+    properties:
+      object:
+        $ref: '#/definitions/model.EmptyObject'
+    type: object
+  response.token:
+    properties:
+      object:
+        $ref: '#/definitions/model.Token'
     type: object
 host: https://auth-iamrz1.cloud.okteto.net
 info:
@@ -126,12 +156,47 @@ info:
   title: auth
   version: "1.0"
 paths:
-  /api/v1/public/customers/{username}:
+  /api/v1/private/customers/profile:
+    get:
+      description: Returns user's profile using access token
+      parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CustomerSuccessRes'
+        "400":
+          description: Invalid request body, or missing required fields.
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+        "401":
+          description: Unauthorized access attempt.
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+        "500":
+          description: API sever or db unreachable.
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+      summary: Get basic profile
+      tags:
+      - Customers
     patch:
       consumes:
       - application/json
-      description: Update an existing generic object
+      description: Update user's basic profile info
       parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
       - description: Some fields are mandatory
         in: body
         name: Body
@@ -157,7 +222,93 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.CustomerErrorRes'
-      summary: Update generic object
+      summary: Update basic profile
+      tags:
+      - Customers
+  /api/v1/private/customers/refresh-token:
+    get:
+      consumes:
+      - application/json
+      description: Generate new access and refresh tokens using current refresh token
+      parameters:
+      - description: Value of refresh token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TokenSuccessRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+      summary: Refresh customer's access token
+      tags:
+      - Customers
+  /api/v1/private/customers/verify-token:
+    get:
+      consumes:
+      - application/json
+      description: VerifyAccessToken lets apps to verify that a provided token is
+        in-fact valid
+      parameters:
+      - description: Value of access token
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.EmptySuccessRes'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+      summary: Verify customer's access token
+      tags:
+      - Customers
+  /api/v1/public/customers/login:
+    post:
+      consumes:
+      - application/json
+      description: Login uses user defined username and password to authenticate a
+        user.
+      parameters:
+      - description: All fields are mandatory
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.TokenSuccessRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.CustomerErrorRes'
+      summary: Login as a customer
       tags:
       - Customers
   /api/v1/public/customers/signup:
@@ -226,7 +377,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.CustomerErrorRes'
-      summary: Verify a new customer using otp
+      summary: VerifyAccessToken a new customer using otp
       tags:
       - Customers
 swagger: "2.0"
