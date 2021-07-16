@@ -7,56 +7,34 @@ type RegistrationSuccessRes struct {
 
 // CustomerSuccessRes example
 type CustomerSuccessRes struct {
-	Success bool         `json:"success" example:"true"`
-	Message string       `json:"message" example:"success message"`
-	Data    customerData `json:"data"`
-}
-
-type customerData struct {
-	Customer model.Customer `json:"object"`
+	Success bool           `json:"success" example:"true"`
+	Message string         `json:"message" example:"success message"`
+	Data    model.Customer `json:"data"`
 }
 
 // CustomerErrorRes example
 type CustomerErrorRes struct {
-	Success bool            `json:"success" example:"false"`
-	Message string          `json:"message" example:"failure message"`
-	Data    customerErrData `json:"data"`
-}
-
-type customerErrData struct {
-	Customer model.EmptyObject `json:"object"`
+	Success bool              `json:"success" example:"false"`
+	Message string            `json:"message" example:"failure message"`
+	Data    model.EmptyObject `json:"data"`
 }
 
 // CustomerListSuccessRes example
 type CustomerListSuccessRes struct {
 	Success bool             `json:"success" example:"true"`
 	Message string           `json:"message" example:"success message"`
-	Data    customerListData `json:"data"`
-}
-
-type customerListData struct {
-	Customers []model.Customer `json:"objects"`
-	Count     int64            `json:"count"`
+	Data    []model.Customer `json:"data"`
 }
 
 // CustomerListErrorRes example
 type CustomerListErrorRes struct {
-	Success bool                  `json:"success" example:"false"`
-	Message string                `json:"message" example:"failure message"`
-	Data    customerListErrorData `json:"data"`
-}
-
-type customerListErrorData struct {
-	Customer []model.EmptyObject `json:"objects"`
-	Count    int64               `json:"count"`
+	Success bool                `json:"success" example:"false"`
+	Message string              `json:"message" example:"failure message"`
+	Data    []model.EmptyObject `json:"data"`
 }
 
 type CustomerResShort struct {
-	Success bool          `json:"success" example:"false"`
-	Message string        `json:"message" example:"failure message"`
-	Data    customerShort `json:"data"`
-}
-
-type customerShort struct {
-	Customer model.CustomerShort `json:"object"`
+	Success bool                `json:"success" example:"false"`
+	Message string              `json:"message" example:"failure message"`
+	Data    model.CustomerShort `json:"data"`
 }

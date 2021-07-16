@@ -78,7 +78,7 @@ func ServeJSONObject(w http.ResponseWriter, code string, status int, message str
 	return nil
 }
 
-func ServeJSONList(w http.ResponseWriter, code string, status int, message string, list interface{}, count int64, meta interface{}, success bool) error {
+func ServeJSONList(w http.ResponseWriter, code string, status int, message string, list interface{}, meta interface{}, success bool) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -87,15 +87,9 @@ func ServeJSONList(w http.ResponseWriter, code string, status int, message strin
 	var objs interface{}
 	type EmptyObject struct{}
 	if list == nil {
-		objs = map[string]interface{}{
-			"objects": []EmptyObject{},
-			"count":   0,
-		}
+		objs = []EmptyObject{}
 	} else {
-		objs = map[string]interface{}{
-			"objects": list,
-			"count":   count,
-		}
+		objs = list
 	}
 
 	resp = &Response{
@@ -132,13 +126,13 @@ func HandleListError(w http.ResponseWriter, err error) {
 	log.Println("service error: ", err)
 	switch v := err.(type) {
 	case rest_error.ValidationError:
-		ServeJSONList(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest, v.ErrorMessage(), nil, 0, nil, false)
+		ServeJSONList(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest, v.ErrorMessage(), nil, nil, false)
 		return
 	case rest_error.GenericHttpError:
-		ServeJSONList(w, http.StatusText(v.Code()), v.Code(), v.Error(), nil, 0, nil, false)
+		ServeJSONList(w, http.StatusText(v.Code()), v.Code(), v.Error(), nil, nil, false)
 		return
 	default:
-		ServeJSONList(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError, "Something went wrong", nil, 0, nil, false)
+		ServeJSONList(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError, "Something went wrong", nil, nil, false)
 		return
 	}
 }
