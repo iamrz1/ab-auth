@@ -20,7 +20,7 @@ import (
 // @Failure 401 {object} response.CustomerErrorRes
 // @Router /api/v1/private/customers/verify-token [get]
 func (pr *privateRouter) VerifyAccessToken(w http.ResponseWriter, r *http.Request) {
-	utils.ServeJSONObject(w, "", http.StatusOK, "Token verified", nil, nil, true)
+	utils.ServeJSONObject(w, http.StatusOK, "Token verified", nil, nil, true)
 }
 
 // GetCustomerProfile godoc
@@ -48,7 +48,7 @@ func (pr *privateRouter) GetCustomerProfile(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	utils.ServeJSONObject(w, "", http.StatusOK, "Successful", &data, nil, true)
+	utils.ServeJSONObject(w, http.StatusOK, "Successful", &data, nil, true)
 }
 
 // UpdateCustomerProfile godoc
@@ -90,7 +90,7 @@ func (pr *privateRouter) UpdateCustomerProfile(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	utils.ServeJSONObject(w, "", http.StatusOK, "Profile updated", &data, nil, true)
+	utils.ServeJSONObject(w, http.StatusOK, "Profile updated", &data, nil, true)
 }
 
 // RefreshToken godoc
@@ -130,7 +130,7 @@ func (pr *privateRouter) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	access, refresh := utils.GenerateTokens(cus.Username, "", "customer")
 	token := model.Token{AccessToken: access, RefreshToken: refresh}
 
-	utils.ServeJSONObject(w, "", http.StatusOK, "Token refreshed", &token, nil, true)
+	utils.ServeJSONObject(w, http.StatusOK, "Token refreshed", &token, nil, true)
 }
 
 //func (pr *privateRouter) PurgeCustomer(w http.ResponseWriter, r *http.Request) {
@@ -144,5 +144,5 @@ func (pr *privateRouter) RefreshToken(w http.ResponseWriter, r *http.Request) {
 //		return
 //	}
 //
-//	utils.ServeJSONObject(w, "", http.StatusOK, "Purged generic object successfully", &data, nil, true)
+//	utils.ServeJSONObject(w, http.StatusOK, "Purged generic object successfully", &data, nil, true)
 //}

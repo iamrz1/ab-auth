@@ -495,7 +495,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/response.customerErrData"
+                    "$ref": "#/definitions/model.EmptyObject"
                 },
                 "message": {
                     "type": "string",
@@ -504,6 +504,10 @@ var doc = `{
                 "success": {
                     "type": "boolean",
                     "example": false
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
                 }
             }
         },
@@ -511,7 +515,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/response.customerData"
+                    "$ref": "#/definitions/model.Customer"
                 },
                 "message": {
                     "type": "string",
@@ -520,6 +524,10 @@ var doc = `{
                 "success": {
                     "type": "boolean",
                     "example": true
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
                 }
             }
         },
@@ -527,7 +535,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/response.emptySuccessData"
+                    "$ref": "#/definitions/model.EmptyObject"
                 },
                 "message": {
                     "type": "string",
@@ -536,6 +544,10 @@ var doc = `{
                 "success": {
                     "type": "boolean",
                     "example": false
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
                 }
             }
         },
@@ -543,7 +555,7 @@ var doc = `{
             "type": "object",
             "properties": {
                 "data": {
-                    "$ref": "#/definitions/response.token"
+                    "$ref": "#/definitions/model.Token"
                 },
                 "message": {
                     "type": "string",
@@ -552,38 +564,10 @@ var doc = `{
                 "success": {
                     "type": "boolean",
                     "example": false
-                }
-            }
-        },
-        "response.customerData": {
-            "type": "object",
-            "properties": {
-                "object": {
-                    "$ref": "#/definitions/model.Customer"
-                }
-            }
-        },
-        "response.customerErrData": {
-            "type": "object",
-            "properties": {
-                "object": {
-                    "$ref": "#/definitions/model.EmptyObject"
-                }
-            }
-        },
-        "response.emptySuccessData": {
-            "type": "object",
-            "properties": {
-                "object": {
-                    "$ref": "#/definitions/model.EmptyObject"
-                }
-            }
-        },
-        "response.token": {
-            "type": "object",
-            "properties": {
-                "object": {
-                    "$ref": "#/definitions/model.Token"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
                 }
             }
         }

@@ -5,6 +5,7 @@ import (
 	rest_error "github.com/iamrz1/ab-auth/error"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Meta struct {
@@ -14,14 +15,15 @@ type Meta struct {
 
 // Response serializer util
 type Response struct {
-	Code    string      `json:"code,omitempty"`
-	Status  int         `json:"-"`
-	Message string      `json:"message,omitempty"`
-	Success bool        `json:"success"`
-	Meta    interface{} `json:"meta,omitempty"`
-	Data    interface{} `json:"data"`
-	User    interface{} `json:"user,omitempty"`
-	Errors  interface{} `json:"errors,omitempty"`
+	Code      string      `json:"code,omitempty"`
+	Status    int         `json:"-"`
+	Message   string      `json:"message,omitempty"`
+	Success   bool        `json:"success"`
+	Meta      interface{} `json:"meta,omitempty"`
+	Data      interface{} `json:"data"`
+	User      interface{} `json:"user,omitempty"`
+	Errors    interface{} `json:"errors,omitempty"`
+	Timestamp string      `json:"timestamp,omitempty"`
 }
 
 // ServeJSON serves json to http client
@@ -45,9 +47,9 @@ func (r *Response) ServeJSON(w http.ResponseWriter) error {
 	return nil
 }
 
-func ServeJSONObject(w http.ResponseWriter, code string, status int, message string, data interface{}, meta interface{}, success bool) error {
+func ServeJSONObject(w http.ResponseWriter, code int, message string, data interface{}, meta interface{}, success bool) error {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+	w.WriteHeader(code)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 
 	var resp interface{}
@@ -64,7 +66,7 @@ func ServeJSONObject(w http.ResponseWriter, code string, status int, message str
 	}
 
 	resp = &Response{
-		Code:    code,
+		Code:    http.StatusText(code),
 		Message: message,
 		Success: success,
 		Data:    obj,
@@ -93,11 +95,12 @@ func ServeJSONList(w http.ResponseWriter, code string, status int, message strin
 	}
 
 	resp = &Response{
-		Code:    code,
-		Message: message,
-		Success: success,
-		Data:    objs,
-		Meta:    meta,
+		Code:      http.StatusText(status),
+		Message:   message,
+		Success:   success,
+		Data:      objs,
+		Meta:      meta,
+		Timestamp: time.Now().Format(ISOLayout),
 	}
 
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
@@ -111,13 +114,13 @@ func HandleObjectError(w http.ResponseWriter, err error) {
 	log.Println("service error: ", err)
 	switch v := err.(type) {
 	case rest_error.ValidationError:
-		ServeJSONObject(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest, v.ErrorMessage(), nil, nil, false)
+		ServeJSONObject(w, http.StatusBadRequest, v.ErrorMessage(), nil, nil, false)
 		return
 	case rest_error.GenericHttpError:
-		ServeJSONObject(w, http.StatusText(v.Code()), v.Code(), v.Error(), nil, nil, false)
+		ServeJSONObject(w, v.Code(), v.Error(), nil, nil, false)
 		return
 	default:
-		ServeJSONObject(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError, "Something went wrong", nil, nil, false)
+		ServeJSONObject(w, http.StatusInternalServerError, "Something went wrong", nil, nil, false)
 		return
 	}
 }

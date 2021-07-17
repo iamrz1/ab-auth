@@ -55,7 +55,7 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 		meta = map[string]string{"otp": otp}
 	}
 
-	utils.ServeJSONObject(w, "", http.StatusCreated, "OTP sent", nil, meta, true)
+	utils.ServeJSONObject(w, http.StatusCreated, "OTP sent", nil, meta, true)
 }
 
 // VerifySignUp godoc
@@ -90,7 +90,7 @@ func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.ServeJSONObject(w, "", http.StatusOK, "Verified", nil, nil, true)
+	utils.ServeJSONObject(w, http.StatusOK, "Verified", nil, nil, true)
 }
 
 // Login godoc
@@ -125,7 +125,7 @@ func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.ServeJSONObject(w, "", http.StatusOK, "Logged in", res, nil, true)
+	utils.ServeJSONObject(w, http.StatusOK, "Logged in", res, nil, true)
 }
 
 //func (pr *publicRouter) PurgeCustomer(w http.ResponseWriter, r *http.Request) {
@@ -139,5 +139,5 @@ func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
 //		return
 //	}
 //
-//	utils.ServeJSONObject(w, "", http.StatusOK, "Purged generic object successfully", &data, nil, true)
+//	utils.ServeJSONObject(w, http.StatusOK, "Purged generic object successfully", &data, nil, true)
 //}

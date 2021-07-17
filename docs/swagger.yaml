@@ -85,66 +85,58 @@ definitions:
   response.CustomerErrorRes:
     properties:
       data:
-        $ref: '#/definitions/response.customerErrData'
+        $ref: '#/definitions/model.EmptyObject'
       message:
         example: failure message
         type: string
       success:
         example: false
         type: boolean
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
     type: object
   response.CustomerSuccessRes:
     properties:
       data:
-        $ref: '#/definitions/response.customerData'
+        $ref: '#/definitions/model.Customer'
       message:
         example: success message
         type: string
       success:
         example: true
         type: boolean
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
     type: object
   response.EmptySuccessRes:
     properties:
       data:
-        $ref: '#/definitions/response.emptySuccessData'
+        $ref: '#/definitions/model.EmptyObject'
       message:
         example: success message
         type: string
       success:
         example: false
         type: boolean
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
     type: object
   response.TokenSuccessRes:
     properties:
       data:
-        $ref: '#/definitions/response.token'
+        $ref: '#/definitions/model.Token'
       message:
         example: success message
         type: string
       success:
         example: false
         type: boolean
-    type: object
-  response.customerData:
-    properties:
-      object:
-        $ref: '#/definitions/model.Customer'
-    type: object
-  response.customerErrData:
-    properties:
-      object:
-        $ref: '#/definitions/model.EmptyObject'
-    type: object
-  response.emptySuccessData:
-    properties:
-      object:
-        $ref: '#/definitions/model.EmptyObject'
-    type: object
-  response.token:
-    properties:
-      object:
-        $ref: '#/definitions/model.Token'
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
     type: object
 host: https://auth-iamrz1.cloud.okteto.net
 info:
