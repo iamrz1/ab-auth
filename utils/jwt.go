@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	infraCache "github.com/iamrz1/ab-auth/infra/cache"
 	"log"
 	"os"
 	"strconv"
@@ -93,4 +94,25 @@ func VerifyToken(token string, isRefresh bool) (*claims, error) {
 	}
 
 	return thisClaims, nil
+}
+
+func GetLastResetAt(username string) (int64, error) {
+	scmd := infraCache.Client().Get(fmt.Sprintf("%s_%s", username, LastResetEventAtKey))
+	err := scmd.Err()
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+
+	lastResetAt, err := scmd.Int64()
+	if err != nil {
+		log.Println("Unsupported value as last_reset_at")
+		return 0, fmt.Errorf("%s", "Unsupported value as last_reset_at")
+	}
+
+	return lastResetAt, nil
+}
+
+func SetLastResetAt(username string, in int64) {
+	infraCache.Client().Set(fmt.Sprintf("%s_%s", username, LastResetEventAtKey), in, 0)
 }
