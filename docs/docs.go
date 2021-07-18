@@ -501,6 +501,10 @@ var doc = `{
                     "type": "string",
                     "example": "failure message"
                 },
+                "status": {
+                    "type": "string",
+                    "example": "Status string corresponding to the error"
+                },
                 "success": {
                     "type": "boolean",
                     "example": false
@@ -520,6 +524,10 @@ var doc = `{
                 "message": {
                     "type": "string",
                     "example": "success message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "type": "boolean",
@@ -541,6 +549,10 @@ var doc = `{
                     "type": "string",
                     "example": "success message"
                 },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
                 "success": {
                     "type": "boolean",
                     "example": false
@@ -560,6 +572,10 @@ var doc = `{
                 "message": {
                     "type": "string",
                     "example": "success message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "type": "boolean",

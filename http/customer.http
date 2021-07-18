@@ -6,11 +6,11 @@ POST http://localhost:8080/api/v1/public/customers/signup
 Content-Type: application/json
 
 {
-  "captcha_id": "A0CgOBgdAD1kvZ4b0cq1",
+  "captcha_id": "4uBAfHvVUEs9fkhFmGVA",
   "captcha_value": "11111",
   "full_name": "Rezoan",
-  "password": "Anondo2021!",
-  "username": "01746410745"
+  "password": "Abcd2021!",
+  "username": "01746410748"
 }
 
 ###
@@ -19,8 +19,8 @@ POST http://localhost:8080/api/v1/public/customers/verify-signup
 Content-Type: application/json
 
 {
-  "otp": "41761",
-  "username": "01746410745"
+  "otp": "30358",
+  "username": "01746410748"
 }
 
 ###
@@ -28,14 +28,14 @@ POST http://localhost:8080/api/v1/public/customers/login
 Content-Type: application/json
 
 {
-  "password": "Anondo2021!",
-  "username": "01746410745"
+  "password": "Abcd2021!",
+  "username": "01746410748"
 }
 
 ###
 PATCH http://localhost:8080/api/v1/private/customers/profile
 Content-Type: application/json
-authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ2Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2MzUxMjQ5LCJpYXQiOjE2MjYzNDk0NDl9.k1XSXcmaCa0Bvn6mKaPRLajRpx0i1iXwvTuyk_91vDU
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ4Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2NjQwMTY3LCJpYXQiOjE2MjY2MzgzNjd9.DjPXbUMe-l47TuEC9qC3SO1Bd0SJvWc_4Ptgd7VKwfE
 
 {
   "birth_date": "2006-01-02T15:04:05.000Z",
@@ -50,17 +50,16 @@ authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEw
 
 GET http://localhost:8080/api/v1/private/customers/profile
 Accept: application/json
-authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ2Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2MzUxNDA1LCJpYXQiOjE2MjYzNDk2MDV9.vO_jmO3CyiuTpP9rmC2Kq-YInRX6I_d4bRo3orfggEQ
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ3Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2NjM1Nzk5LCJpYXQiOjE2MjY2MzM5OTl9.mxxc7X6F_dwgF12NnyoCJt5fH1foITF5VG85cJlhp8o
 
 ###
 
 GET http://localhost:8080/api/v1/private/customers/verify-token
 Accept: application/json
-authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ2Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2MzUxNDA1LCJpYXQiOjE2MjYzNDk2MDV9.vO_jmO3CyiuTpP9rmC2Kq-YInRX6I_d4bRo3orfggEQ
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ4Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2NjM5NzQ3LCJpYXQiOjE2MjY2Mzc5NDd9.ZcUQExYDM6VKbux_tnBNv1sLf95wVGjNgurgoQGVCbE
 
 ###
 
 GET http://localhost:8080/api/v1/private/customers/refresh-token
 Accept: application/json
 authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ2Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6IiIsImV4cCI6MTYyNjk1NDI0OSwiaWF0IjoxNjI2MzQ5NDQ5fQ.Bvbvk6fIULgpq43lDMNkRhzZwz6EA3rpiJy-M--zxKY
-

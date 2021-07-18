@@ -486,6 +486,10 @@
                     "type": "string",
                     "example": "failure message"
                 },
+                "status": {
+                    "type": "string",
+                    "example": "Status string corresponding to the error"
+                },
                 "success": {
                     "type": "boolean",
                     "example": false
@@ -505,6 +509,10 @@
                 "message": {
                     "type": "string",
                     "example": "success message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "type": "boolean",
@@ -526,6 +534,10 @@
                     "type": "string",
                     "example": "success message"
                 },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
                 "success": {
                     "type": "boolean",
                     "example": false
@@ -545,6 +557,10 @@
                 "message": {
                     "type": "string",
                     "example": "success message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
                 },
                 "success": {
                     "type": "boolean",

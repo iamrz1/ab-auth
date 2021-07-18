@@ -110,6 +110,8 @@ func (gs *customerService) Login(ctx context.Context, req *model.LoginReq) (*mod
 		return nil, rest_error.NewValidationError(incorrectMsg, nil)
 	}
 
+	utils.SetLastResetAt(g.Username, g.LastResetAt.Unix())
+
 	access, refresh := utils.GenerateTokens(g.Username, "", "customer")
 
 	return &model.Token{AccessToken: access, RefreshToken: refresh}, nil

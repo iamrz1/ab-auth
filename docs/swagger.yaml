@@ -89,6 +89,9 @@ definitions:
       message:
         example: failure message
         type: string
+      status:
+        example: Status string corresponding to the error
+        type: string
       success:
         example: false
         type: boolean
@@ -102,6 +105,9 @@ definitions:
         $ref: '#/definitions/model.Customer'
       message:
         example: success message
+        type: string
+      status:
+        example: OK
         type: string
       success:
         example: true
@@ -117,6 +123,9 @@ definitions:
       message:
         example: success message
         type: string
+      status:
+        example: OK
+        type: string
       success:
         example: false
         type: boolean
@@ -130,6 +139,9 @@ definitions:
         $ref: '#/definitions/model.Token'
       message:
         example: success message
+        type: string
+      status:
+        example: OK
         type: string
       success:
         example: false

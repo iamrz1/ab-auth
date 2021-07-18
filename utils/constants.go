@@ -30,4 +30,5 @@ const (
 	MaxLoginAttempt              = 5
 	accessTokenKey               = "jdskhhiuewfhosfkaskfhajksfeiwhfuiowehfiwejdkfewudhuiewhjfdiu"
 	refreshTokenKey              = "fdshfjdshfjhdsjlfhuoashfuherifherhfuqheruifhiquwhfukwjnfjiwhl"
+	LastResetEventAtKey          = "last_reset_at"
 )
