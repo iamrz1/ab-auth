@@ -26,8 +26,7 @@ const (
 	UsernameKey                  = "username"
 	DefaultHashingIteration      = 1500
 	TryAgainMessage              = "Please try again later"
-	MaxOTPAttempt                = 50
-	MaxLoginAttempt              = 5
+	MaxAddressAllowed            = 5
 	PasswordPattern              = "^([a-zA-z0-9!@#%*_=+/-]*)$"
 	accessTokenKey               = "jdskhhiuewfhosfkaskfhajksfeiwhfuiowehfiwejdkfewudhuiewhjfdiu"
 	refreshTokenKey              = "fdshfjdshfjhdsjlfhuoashfuherifherhfuqheruifhiquwhfukwjnfjiwhl"

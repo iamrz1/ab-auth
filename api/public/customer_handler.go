@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-// Signup godoc
+// signup godoc
 // @Summary Signup a new customer
 // @Description Signup a new customer for a valid non-existing phone number
 // @Tags Customers
@@ -21,7 +21,7 @@ import (
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/signup [post]
-func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
+func (pr *publicRouter) signup(w http.ResponseWriter, r *http.Request) {
 	req := model.CustomerSignupReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -58,9 +58,9 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 	utils.ServeJSONObject(w, http.StatusCreated, "OTP sent", nil, meta, true)
 }
 
-// VerifySignUp godoc
+// verifySignUp godoc
 // @Summary Verify a new customer using otp
-// @Description Use user defined otp to match it with existing reference in cache to verify a signup
+// @Description Use customer defined otp to match it with existing reference in cache to verify a signup
 // @Tags Customers
 // @Accept  json
 // @Produce  json
@@ -70,7 +70,7 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/verify-signup [post]
-func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
+func (pr *publicRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
 	req := model.CustomerSignupVerificationReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -93,9 +93,9 @@ func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
 	utils.ServeJSONObject(w, http.StatusOK, "Verified", nil, nil, true)
 }
 
-// Login godoc
+// login godoc
 // @Summary Login as a customer
-// @Description Login uses user defined username and password to authenticate a user.
+// @Description Login uses customer defined username and password to authenticate a customer.
 // @Tags Customers
 // @Accept  json
 // @Produce  json
@@ -105,7 +105,7 @@ func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/login [post]
-func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
+func (pr *publicRouter) login(w http.ResponseWriter, r *http.Request) {
 	req := model.LoginReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -128,9 +128,9 @@ func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
 	utils.ServeJSONObject(w, http.StatusOK, "Logged in", res, nil, true)
 }
 
-// ForgotPassword godoc
+// forgotPassword godoc
 // @Summary Request OTP to reset password
-// @Description ForgotPassword uses username and captcha to send otp to user's registered number
+// @Description Use username and captcha to send otp to customer's registered number
 // @Tags Customers
 // @Accept  json
 // @Produce  json
@@ -140,7 +140,7 @@ func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/forgot-password [post]
-func (pr *publicRouter) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+func (pr *publicRouter) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	req := model.ForgotPasswordReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -178,8 +178,8 @@ func (pr *publicRouter) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	utils.ServeJSONObject(w, http.StatusCreated, "OTP sent", nil, meta, true)
 }
 
-// SetPassword godoc
-// @Summary Set user's password with OTP
+// setPassword godoc
+// @Summary Set customer's password with OTP
 // @Description Set new password using OTP received during forgot-password
 // @Tags Customers
 // @Accept  json
@@ -190,7 +190,7 @@ func (pr *publicRouter) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/set-password [post]
-func (pr *publicRouter) SetPassword(w http.ResponseWriter, r *http.Request) {
+func (pr *publicRouter) setPassword(w http.ResponseWriter, r *http.Request) {
 	req := model.SetPasswordReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -213,17 +213,3 @@ func (pr *publicRouter) SetPassword(w http.ResponseWriter, r *http.Request) {
 
 	utils.ServeJSONObject(w, http.StatusOK, "Password set", nil, nil, true)
 }
-
-//func (pr *publicRouter) PurgeCustomer(w http.ResponseWriter, r *http.Request) {
-//	slug := chi.URLParam(r, "slug")
-//
-//	req := model.CustomerDeleteReq{Username: slug}
-//
-//	data, err := pr.Services.CustomerService.PurgeCustomer(r.Context(), &req)
-//	if err != nil {
-//		utils.HandleObjectError(w, err)
-//		return
-//	}
-//
-//	utils.ServeJSONObject(w, http.StatusOK, "Purged generic object successfully", &data, nil, true)
-//}

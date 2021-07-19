@@ -11,6 +11,7 @@ import (
 	"github.com/iamrz1/ab-auth/repo"
 	"github.com/iamrz1/ab-auth/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
 	"strings"
@@ -20,14 +21,16 @@ import (
 type customerService struct {
 	CommonRepo   *repo.CommonRepo
 	CustomerRepo *repo.CustomerRepo
+	AddressRepo  *repo.AddressRepo
 	Log          logger.StructLogger
 	Config       *config.AppConfig
 }
 
-func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.CustomerRepo, logger logger.StructLogger) *customerService {
+func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.CustomerRepo, ar *repo.AddressRepo, logger logger.StructLogger) *customerService {
 	return &customerService{
 		CommonRepo:   cm,
 		CustomerRepo: cs,
+		AddressRepo:  ar,
 		Log:          logger,
 		Config:       cfg,
 	}
@@ -123,12 +126,12 @@ func (gs *customerService) Login(ctx context.Context, req *model.LoginReq) (*mod
 
 	g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: req.Username})
 	if err != nil {
-		gs.Log.Errorf("Login", "", err.Error())
+		gs.Log.Errorf("login", "", err.Error())
 		return nil, rest_error.NewValidationError(incorrectMsg, nil)
 	}
 
 	if !utils.VerifyPassword(req.Password, g.Password) {
-		gs.Log.Errorf("Login", "", "password mismatch")
+		gs.Log.Errorf("login", "", "password mismatch")
 		return nil, rest_error.NewValidationError(incorrectMsg, nil)
 	}
 
@@ -142,13 +145,13 @@ func (gs *customerService) Login(ctx context.Context, req *model.LoginReq) (*mod
 func (gs *customerService) GetShortProfile(ctx context.Context, req *model.Token) (*model.CustomerShort, error) {
 	claims, err := utils.VerifyToken(req.AccessToken, false)
 	if err != nil {
-		gs.Log.Errorf("VerifyAccessToken", "", err.Error())
+		gs.Log.Errorf("GetShortProfile", "", err.Error())
 		return nil, rest_error.NewGenericError(http.StatusUnauthorized, err.Error())
 	}
 
 	g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: claims.Username})
 	if err != nil {
-		gs.Log.Errorf("VerifyAccessToken", "", err.Error())
+		gs.Log.Errorf("GetShortProfile", "", err.Error())
 		return nil, rest_error.NewGenericError(http.StatusUnauthorized, "Invalid user")
 	}
 
@@ -232,7 +235,7 @@ func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.Custom
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
 		return nil, err
 	}
 
@@ -265,7 +268,7 @@ func (gs *customerService) UpdatePassword(ctx context.Context, req *model.Update
 	}
 
 	if !utils.VerifyPassword(req.CurrentPassword, c.Password) {
-		gs.Log.Errorf("UpdatePassword", "", "password mismatch")
+		gs.Log.Errorf("updatePassword", "", "password mismatch")
 		return nil, rest_error.NewValidationError("Incorrect password", nil)
 	}
 
@@ -276,7 +279,7 @@ func (gs *customerService) UpdatePassword(ctx context.Context, req *model.Update
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
 		return nil, err
 	}
 
@@ -301,7 +304,7 @@ func (gs *customerService) DeleteCustomer(ctx context.Context, delete *model.Cus
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
 		return nil, err
 	}
 
@@ -391,7 +394,7 @@ func (gs *customerService) SetPassword(ctx context.Context, req *model.SetPasswo
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
 		return err
 	}
 
@@ -429,11 +432,170 @@ func (gs *customerService) ChangePassword(ctx context.Context, req *model.SetPas
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
 		return err
 	}
 
 	utils.SetLastResetAt(req.Username, updateDoc.LastResetAt.Unix())
 
 	return nil
+}
+
+//address
+func (gs *customerService) AddAddress(ctx context.Context, req *model.Address) ([]*model.Address, error) {
+	filter := model.Address{Username: req.Username, IsDeleted: utils.BoolP(false)}
+	n, err := gs.AddressRepo.GetAddressCount(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	if n >= utils.MaxAddressAllowed {
+		return nil, rest_error.NewValidationError(fmt.Sprintf("Maximum %d addresses are allowed", utils.MaxAddressAllowed), nil)
+	}
+
+	if n == 0 {
+		req.IsPrimary = utils.BoolP(true)
+	} else {
+		req.IsPrimary = utils.BoolP(false)
+	}
+
+	err = gs.AddressRepo.AddAddress(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	list, err := gs.AddressRepo.GetAddresses(ctx, filter, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
+func (gs *customerService) UpdateAddress(ctx context.Context, req *model.Address) ([]*model.Address, error) {
+	objID, err := primitive.ObjectIDFromHex(req.ID)
+	if err != nil {
+		return nil, rest_error.NewValidationError("Invalid address ID", nil)
+	}
+	req.ID = ""
+	filter := bson.E{Key: "_id", Value: objID}
+	n, err := gs.AddressRepo.UpdateAddress(ctx, filter, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if n == 0 {
+		return nil, rest_error.NewValidationError("Nothing to update", nil)
+	}
+
+	getFilter := model.Address{Username: req.Username, IsDeleted: utils.BoolP(false)}
+	list, err := gs.AddressRepo.GetAddresses(ctx, getFilter, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
+func (gs *customerService) RemoveAddress(ctx context.Context, req *model.Address) ([]*model.Address, error) {
+	objID, err := primitive.ObjectIDFromHex(req.ID)
+	if err != nil {
+		return nil, rest_error.NewValidationError("Invalid address ID", nil)
+	}
+	filter := bson.E{Key: "_id", Value: objID}
+
+	doc := &model.Address{IsDeleted: utils.BoolP(true)}
+	n, err := gs.AddressRepo.UpdateAddress(ctx, filter, doc)
+	if err != nil {
+		return nil, err
+	}
+
+	if n == 0 {
+		return nil, rest_error.NewValidationError("Address not found", nil)
+	}
+
+	getFilter := model.Address{Username: req.Username, IsDeleted: utils.BoolP(false)}
+	list, err := gs.AddressRepo.GetAddresses(ctx, getFilter, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
+func (gs *customerService) GetAddresses(ctx context.Context, username string) ([]*model.Address, error) {
+	getFilter := model.Address{Username: username, IsDeleted: utils.BoolP(false)}
+	list, err := gs.AddressRepo.GetAddresses(ctx, getFilter, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return list, nil
+}
+
+func (gs *customerService) GetPrimaryAddress(ctx context.Context, username string) (*model.Address, error) {
+	getFilter := model.Address{Username: username, IsDeleted: utils.BoolP(false), IsPrimary: utils.BoolP(true)}
+	address, err := gs.AddressRepo.GetAddress(ctx, getFilter)
+	if err != nil {
+		if err == infra.ErrNotFound {
+			return nil, rest_error.NewGenericError(http.StatusExpectationFailed, "No default address")
+		}
+		return nil, err
+	}
+
+	return address, nil
+}
+
+func (gs *customerService) SetPrimaryAddress(ctx context.Context, req *model.Address) ([]*model.Address, error) {
+	getFilter := model.Address{Username: req.Username, IsDeleted: utils.BoolP(false)}
+	list, err := gs.AddressRepo.GetAddresses(ctx, getFilter, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	found := false
+	isAlreadyPrimary := false
+	oldPrimaryID := ""
+	for _, address := range list {
+		if address.ID == req.ID {
+			found = true
+			if address.IsPrimary != nil && (*(address).IsPrimary) {
+				isAlreadyPrimary = true
+			}
+			address.IsPrimary = utils.BoolP(true)
+		} else {
+			if address.IsPrimary != nil && (*(address).IsPrimary) {
+				oldPrimaryID = address.ID
+				address.IsPrimary = utils.BoolP(false)
+			}
+		}
+	}
+
+	if !found {
+		return nil, rest_error.NewValidationError("Unknown address ID", nil)
+	}
+
+	if isAlreadyPrimary {
+		return list, nil
+	}
+
+	objID, err := primitive.ObjectIDFromHex(req.ID)
+	if err != nil {
+		return nil, rest_error.NewValidationError("Invalid address ID", nil)
+	}
+	filter := bson.E{Key: "_id", Value: objID}
+	_, err = gs.AddressRepo.UpdateAddress(ctx, filter, &model.Address{IsPrimary: utils.BoolP(true)})
+	if err != nil {
+		return nil, err
+	}
+
+	if oldPrimaryID != "" {
+		objID, err = primitive.ObjectIDFromHex(oldPrimaryID)
+		filter = bson.E{Key: "_id", Value: objID}
+		_, err = gs.AddressRepo.UpdateAddress(ctx, filter, &model.Address{IsPrimary: utils.BoolP(false)})
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return list, nil
 }

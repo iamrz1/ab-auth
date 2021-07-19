@@ -1,5 +1,104 @@
 basePath: /
 definitions:
+  model.Address:
+    properties:
+      address:
+        type: string
+      district:
+        type: string
+      district_slug:
+        type: string
+      division:
+        type: string
+      division_slug:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      is_deleted:
+        type: boolean
+      is_primary:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+      phone_number:
+        type: string
+      sub_district:
+        type: string
+      sub_district_slug:
+        type: string
+      union:
+        type: string
+      union_slug:
+        type: string
+      username:
+        type: string
+    type: object
+  model.AddressCreateReq:
+    properties:
+      address:
+        type: string
+      district:
+        type: string
+      district_slug:
+        type: string
+      division:
+        type: string
+      division_slug:
+        type: string
+      full_name:
+        type: string
+      is_primary:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+      phone_number:
+        type: string
+      sub_district:
+        type: string
+      sub_district_slug:
+        type: string
+      union:
+        type: string
+      union_slug:
+        type: string
+    type: object
+  model.AddressUpdateReq:
+    properties:
+      address:
+        type: string
+      district:
+        type: string
+      district_slug:
+        type: string
+      division:
+        type: string
+      division_slug:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      phone_number:
+        type: string
+      sub_district:
+        type: string
+      sub_district_slug:
+        type: string
+      union:
+        type: string
+      union_slug:
+        type: string
+    type: object
   model.Customer:
     properties:
       birth_date:
@@ -111,6 +210,42 @@ definitions:
       new_password:
         type: string
     type: object
+  response.AddressListSuccessRes:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Address'
+        type: array
+      message:
+        example: success message
+        type: string
+      status:
+        example: OK
+        type: string
+      success:
+        example: true
+        type: boolean
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
+    type: object
+  response.AddressSuccessRes:
+    properties:
+      data:
+        $ref: '#/definitions/model.Address'
+      message:
+        example: success message
+        type: string
+      status:
+        example: OK
+        type: string
+      success:
+        example: true
+        type: boolean
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
+    type: object
   response.CustomerSuccessRes:
     properties:
       data:
@@ -132,6 +267,25 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/model.EmptyObject'
+      message:
+        example: failure message
+        type: string
+      status:
+        example: Status string corresponding to the error
+        type: string
+      success:
+        example: false
+        type: boolean
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
+    type: object
+  response.EmptyListErrorRes:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.EmptyObject'
+        type: array
       message:
         example: failure message
         type: string
@@ -189,11 +343,214 @@ info:
   title: auth
   version: "1.0"
 paths:
-  /api/v1/private/customers/password:
+  /api/v1/private/customers/address:
+    post:
+      description: Add a customer address as long as the total address count for the
+        customer is not greater than 5
+      parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: Some fields are mandatory
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressCreateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.AddressListSuccessRes'
+        "400":
+          description: Invalid request body, or missing required fields.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "401":
+          description: Unauthorized access attempt.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "500":
+          description: API sever or db unreachable.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+      summary: Add a customer address
+      tags:
+      - Customers
+  /api/v1/private/customers/address/{id}:
+    delete:
+      description: Remove an address for customer using address id
+      parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.AddressListSuccessRes'
+        "400":
+          description: Invalid request body, or missing required fields.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "401":
+          description: Unauthorized access attempt.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "500":
+          description: API sever or db unreachable.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+      summary: Remove a customer address
+      tags:
+      - Customers
     patch:
+      description: Update an address for customer using address id
+      parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: Some fields are mandatory
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddressUpdateReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.AddressListSuccessRes'
+        "400":
+          description: Invalid request body, or missing required fields.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "401":
+          description: Unauthorized access attempt.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "500":
+          description: API sever or db unreachable.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+      summary: Update address by id
+      tags:
+      - Customers
+  /api/v1/private/customers/address/all:
+    get:
+      description: Get all the addresses of the requesting customer
+      parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.AddressListSuccessRes'
+        "400":
+          description: Invalid request body, or missing required fields.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "401":
+          description: Unauthorized access attempt.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "500":
+          description: API sever or db unreachable.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+      summary: Get customer's addresses
+      tags:
+      - Customers
+  /api/v1/private/customers/address/primary:
+    get:
+      description: Get the primary address of the requesting customer
+      parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.AddressSuccessRes'
+        "400":
+          description: Invalid request body, or missing required fields.
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+        "401":
+          description: Unauthorized access attempt.
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+        "417":
+          description: User is yet to set a primary address
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+        "500":
+          description: API sever or db unreachable.
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+      summary: Get primary address
+      tags:
+      - Customers
+  /api/v1/private/customers/address/primary/{id}:
+    post:
+      description: Set an address using address id as the primary address for customer,
+        remove the previous primary address if needed
+      parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.AddressListSuccessRes'
+        "400":
+          description: Invalid request body, or missing required fields.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "401":
+          description: Unauthorized access attempt.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+        "500":
+          description: API sever or db unreachable.
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+      summary: Set a primary address
+      tags:
+      - Customers
+  /api/v1/private/customers/password:
+    put:
       consumes:
       - application/json
-      description: Update to a new password using user's existing password
+      description: Update to a new password using customer's existing password
       parameters:
       - description: Set access token here
         in: header
@@ -230,7 +587,7 @@ paths:
       - Customers
   /api/v1/private/customers/profile:
     get:
-      description: Returns user's profile using access token
+      description: Returns customer's profile using access token
       parameters:
       - description: Set access token here
         in: header
@@ -262,7 +619,7 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update user's basic profile info
+      description: Update customer's basic profile info
       parameters:
       - description: Set access token here
         in: header
@@ -326,7 +683,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: VerifyAccessToken lets apps to verify that a provided token is
+      description: verifyAccessToken lets apps to verify that a provided token is
         in-fact valid
       parameters:
       - description: Value of access token
@@ -352,8 +709,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: ForgotPassword uses username and captcha to send otp to user's
-        registered number
+      description: Use username and captcha to send otp to customer's registered number
       parameters:
       - description: All fields are mandatory
         in: body
@@ -387,8 +743,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Login uses user defined username and password to authenticate a
-        user.
+      description: Login uses customer defined username and password to authenticate
+        a customer.
       parameters:
       - description: All fields are mandatory
         in: body
@@ -449,7 +805,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.EmptyErrorRes'
-      summary: Set user's password with OTP
+      summary: Set customer's password with OTP
       tags:
       - Customers
   /api/v1/public/customers/signup:
@@ -490,8 +846,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Use user defined otp to match it with existing reference in cache
-        to verify a signup
+      description: Use customer defined otp to match it with existing reference in
+        cache to verify a signup
       parameters:
       - description: All fields are mandatory
         in: body

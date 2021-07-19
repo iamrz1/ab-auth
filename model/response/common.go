@@ -2,6 +2,24 @@ package response
 
 import "github.com/iamrz1/ab-auth/model"
 
+// EmptyErrorRes example
+type EmptyErrorRes struct {
+	Success   bool              `json:"success" example:"false"`
+	Status    string            `json:"status" example:"Status string corresponding to the error"`
+	Message   string            `json:"message" example:"failure message"`
+	Timestamp string            `json:"timestamp" example:"2006-01-02T15:04:05.000Z"`
+	Data      model.EmptyObject `json:"data"`
+}
+
+// EmptyListErrorRes example
+type EmptyListErrorRes struct {
+	Success   bool                `json:"success" example:"false"`
+	Status    string              `json:"status" example:"Status string corresponding to the error"`
+	Message   string              `json:"message" example:"failure message"`
+	Timestamp string              `json:"timestamp" example:"2006-01-02T15:04:05.000Z"`
+	Data      []model.EmptyObject `json:"data"`
+}
+
 // EmptySuccessRes example
 type EmptySuccessRes struct {
 	Success   bool              `json:"success" example:"false"`

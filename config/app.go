@@ -17,6 +17,7 @@ type AppConfig struct {
 	DSN             string
 	Database        string
 	CustomerTable   string
+	AddressTable    string
 	CacheURL        string
 }
 
@@ -49,6 +50,11 @@ func LoadConfig() error {
 		log.Fatal("missing env DB_CUSTOMER_COLLECTION_NAME")
 	}
 
+	at := os.Getenv("DB_ADDRESS_COLLECTION_NAME")
+	if at == "" {
+		log.Fatal("missing env DB_ADDRESS_COLLECTION_NAME")
+	}
+
 	cacheURL := os.Getenv("REDIS_URL")
 	if cacheURL == "" {
 		log.Fatal("missing env REDIS_URL")
@@ -68,6 +74,7 @@ func LoadConfig() error {
 		DSN:             dsn,
 		Database:        dbname,
 		CustomerTable:   ct,
+		AddressTable:    at,
 		CacheURL:        cacheURL,
 	}
 

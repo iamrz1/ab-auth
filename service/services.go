@@ -20,8 +20,9 @@ func getServiceConfig(cs *customerService) *Config {
 
 func SetupServiceConfig(cfg *config.AppConfig, db infra.DB, cache *infraCache.Redis, logStruct logger.StructLogger) *Config {
 	customerRepo := repo.NewCustomerRepo(db, cfg.CustomerTable, cache, logStruct)
+	addressRepo := repo.NewAddressRepo(db, cfg.AddressTable, "address_preset", logStruct)
 	commonRepo := repo.NewCommonRepo(db, cache, logStruct)
-	cs := NewCustomerService(cfg, commonRepo, customerRepo, logStruct)
+	cs := NewCustomerService(cfg, commonRepo, customerRepo, addressRepo, logStruct)
 
 	return getServiceConfig(cs)
 }

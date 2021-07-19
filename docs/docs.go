@@ -28,9 +28,313 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/private/customers/password": {
+        "/api/v1/private/customers/address": {
+            "post": {
+                "description": "Add a customer address as long as the total address count for the customer is not greater than 5",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Add a customer address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Some fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddressCreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.AddressListSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body, or missing required fields.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access attempt.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "API sever or db unreachable.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/customers/address/all": {
+            "get": {
+                "description": "Get all the addresses of the requesting customer",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Get customer's addresses",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.AddressListSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body, or missing required fields.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access attempt.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "API sever or db unreachable.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/customers/address/primary": {
+            "get": {
+                "description": "Get the primary address of the requesting customer",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Get primary address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.AddressSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body, or missing required fields.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access attempt.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    },
+                    "417": {
+                        "description": "User is yet to set a primary address",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "API sever or db unreachable.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/customers/address/primary/{id}": {
+            "post": {
+                "description": "Set an address using address id as the primary address for customer, remove the previous primary address if needed",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Set a primary address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.AddressListSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body, or missing required fields.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access attempt.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "API sever or db unreachable.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/customers/address/{id}": {
+            "delete": {
+                "description": "Remove an address for customer using address id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Remove a customer address",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.AddressListSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body, or missing required fields.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access attempt.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "API sever or db unreachable.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    }
+                }
+            },
             "patch": {
-                "description": "Update to a new password using user's existing password",
+                "description": "Update an address for customer using address id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Update address by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Some fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddressUpdateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.AddressListSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body, or missing required fields.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access attempt.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "API sever or db unreachable.",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/private/customers/password": {
+            "put": {
+                "description": "Update to a new password using customer's existing password",
                 "consumes": [
                     "application/json"
                 ],
@@ -89,7 +393,7 @@ var doc = `{
         },
         "/api/v1/private/customers/profile": {
             "get": {
-                "description": "Returns user's profile using access token",
+                "description": "Returns customer's profile using access token",
                 "produces": [
                     "application/json"
                 ],
@@ -134,7 +438,7 @@ var doc = `{
                 }
             },
             "patch": {
-                "description": "Update user's basic profile info",
+                "description": "Update customer's basic profile info",
                 "consumes": [
                     "application/json"
                 ],
@@ -231,7 +535,7 @@ var doc = `{
         },
         "/api/v1/private/customers/verify-token": {
             "get": {
-                "description": "VerifyAccessToken lets apps to verify that a provided token is in-fact valid",
+                "description": "verifyAccessToken lets apps to verify that a provided token is in-fact valid",
                 "consumes": [
                     "application/json"
                 ],
@@ -269,7 +573,7 @@ var doc = `{
         },
         "/api/v1/public/customers/forgot-password": {
             "post": {
-                "description": "ForgotPassword uses username and captcha to send otp to user's registered number",
+                "description": "Use username and captcha to send otp to customer's registered number",
                 "consumes": [
                     "application/json"
                 ],
@@ -321,7 +625,7 @@ var doc = `{
         },
         "/api/v1/public/customers/login": {
             "post": {
-                "description": "Login uses user defined username and password to authenticate a user.",
+                "description": "Login uses customer defined username and password to authenticate a customer.",
                 "consumes": [
                     "application/json"
                 ],
@@ -383,7 +687,7 @@ var doc = `{
                 "tags": [
                     "Customers"
                 ],
-                "summary": "Set user's password with OTP",
+                "summary": "Set customer's password with OTP",
                 "parameters": [
                     {
                         "description": "All fields are mandatory",
@@ -477,7 +781,7 @@ var doc = `{
         },
         "/api/v1/public/customers/verify-signup": {
             "post": {
-                "description": "Use user defined otp to match it with existing reference in cache to verify a signup",
+                "description": "Use customer defined otp to match it with existing reference in cache to verify a signup",
                 "consumes": [
                     "application/json"
                 ],
@@ -529,6 +833,156 @@ var doc = `{
         }
     },
     "definitions": {
+        "model.Address": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "district_slug": {
+                    "type": "string"
+                },
+                "division": {
+                    "type": "string"
+                },
+                "division_slug": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "is_primary": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "sub_district": {
+                    "type": "string"
+                },
+                "sub_district_slug": {
+                    "type": "string"
+                },
+                "union": {
+                    "type": "string"
+                },
+                "union_slug": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AddressCreateReq": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "district_slug": {
+                    "type": "string"
+                },
+                "division": {
+                    "type": "string"
+                },
+                "division_slug": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "is_primary": {
+                    "type": "boolean"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "sub_district": {
+                    "type": "string"
+                },
+                "sub_district_slug": {
+                    "type": "string"
+                },
+                "union": {
+                    "type": "string"
+                },
+                "union_slug": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AddressUpdateReq": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "district_slug": {
+                    "type": "string"
+                },
+                "division": {
+                    "type": "string"
+                },
+                "division_slug": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "sub_district": {
+                    "type": "string"
+                },
+                "sub_district_slug": {
+                    "type": "string"
+                },
+                "union": {
+                    "type": "string"
+                },
+                "union_slug": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Customer": {
             "type": "object",
             "properties": {
@@ -699,6 +1153,57 @@ var doc = `{
                 }
             }
         },
+        "response.AddressListSuccessRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Address"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "success message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
+                }
+            }
+        },
+        "response.AddressSuccessRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.Address"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "success message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
+                }
+            }
+        },
         "response.CustomerSuccessRes": {
             "type": "object",
             "properties": {
@@ -728,6 +1233,33 @@ var doc = `{
             "properties": {
                 "data": {
                     "$ref": "#/definitions/model.EmptyObject"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "failure message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Status string corresponding to the error"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
+                }
+            }
+        },
+        "response.EmptyListErrorRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.EmptyObject"
+                    }
                 },
                 "message": {
                     "type": "string",

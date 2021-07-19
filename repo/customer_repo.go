@@ -124,7 +124,7 @@ func (pr *CustomerRepo) UpdateCustomer(ctx context.Context, filter, doc *model.C
 	}
 	matched, err := pr.DB.Update(ctx, pr.Table, filter, doc)
 	if err != nil {
-		pr.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		pr.Log.Errorf("updateCustomerProfile", "", err.Error())
 		return 0, err
 	}
 
