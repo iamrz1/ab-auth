@@ -31,6 +31,12 @@ func IsValidPhoneNumber(phoneNumber string) bool {
 	return true
 }
 
+const (
+	InvalidCharErrorMessage = "Password contains invalid characters"
+	SpecialCharErrorMessage = "Must contain at least one special character"
+	CharLenErrorMessage     = "Must be at least 8 characters long"
+)
+
 func ValidatePassword(password string) error {
 	var eightOrMore, special, invalid bool
 	var err error

@@ -214,10 +214,14 @@ func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.Custom
 		}
 		return nil, err
 	}
+	gender := strings.ToLower(strings.TrimSpace(req.Gender))
+	if gender != "" && !utils.IsGenderValid(gender) {
+		return nil, rest_error.NewValidationError("Invalid gender", nil)
+	}
 
 	updateDoc := &model.Customer{
 		FullName:      strings.TrimSpace(req.FullName),
-		Gender:        strings.ToLower(strings.TrimSpace(req.Gender)),
+		Gender:        gender,
 		Email:         strings.ToLower(strings.TrimSpace(req.Email)),
 		Occupation:    strings.TrimSpace(req.Occupation),
 		Organization:  strings.TrimSpace(req.Organization),

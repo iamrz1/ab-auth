@@ -56,7 +56,7 @@ authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEw
 
 GET http://localhost:8080/api/v1/private/customers/verify-token
 Accept: application/json
-authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ4Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2NjM5NzQ3LCJpYXQiOjE2MjY2Mzc5NDd9.ZcUQExYDM6VKbux_tnBNv1sLf95wVGjNgurgoQGVCbE
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ4Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2Njk3NjY0LCJpYXQiOjE2MjY2OTU4NjR9.LKBj-_GWTadDKvsEtg9GtUNXQZtk01Jr88ct900O-P8
 
 ###
 
@@ -85,3 +85,14 @@ Content-Type: application/json
   "otp": "94298"
 }
 
+###
+
+PATCH http://localhost:8080/api/v1/private/customers/password
+Content-Type: application/json
+Accept: application/json
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjAxNzQ2NDEwNzQ4Iiwicm9sZSI6IiIsInVzZXJfdHlwZSI6ImN1c3RvbWVyIiwiZXhwIjoxNjI2Njk3NjY0LCJpYXQiOjE2MjY2OTU4NjR9.LKBj-_GWTadDKvsEtg9GtUNXQZtk01Jr88ct900O-P8
+
+{
+  "current_password": "Abc2021!",
+  "new_password": "Abcd2021!"
+}

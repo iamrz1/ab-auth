@@ -89,10 +89,10 @@ func HandleObjectError(w http.ResponseWriter, err error) {
 
 	switch v := err.(type) {
 	case rest_error.ValidationError:
-		ServeJSONObject(w, http.StatusBadRequest, v.ErrorMessage(), nil, errMeta, false)
+		ServeJSONObject(w, http.StatusBadRequest, v.ErrorMessage(), nil, nil, false)
 		return
 	case rest_error.GenericHttpError:
-		ServeJSONObject(w, v.Code(), v.Error(), nil, errMeta, false)
+		ServeJSONObject(w, v.Code(), v.Error(), nil, nil, false)
 		return
 	default:
 		ServeJSONObject(w, http.StatusInternalServerError, "Something went wrong", nil, errMeta, false)
@@ -110,10 +110,10 @@ func HandleListError(w http.ResponseWriter, err error) {
 
 	switch v := err.(type) {
 	case rest_error.ValidationError:
-		ServeJSONList(w, http.StatusBadRequest, v.ErrorMessage(), nil, errMeta, false)
+		ServeJSONList(w, http.StatusBadRequest, v.ErrorMessage(), nil, nil, false)
 		return
 	case rest_error.GenericHttpError:
-		ServeJSONList(w, v.Code(), v.Error(), nil, errMeta, false)
+		ServeJSONList(w, v.Code(), v.Error(), nil, nil, false)
 		return
 	default:
 		ServeJSONList(w, http.StatusInternalServerError, "Something went wrong", nil, errMeta, false)

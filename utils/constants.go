@@ -29,9 +29,6 @@ const (
 	MaxOTPAttempt                = 50
 	MaxLoginAttempt              = 5
 	PasswordPattern              = "^([a-zA-z0-9!@#%*_=+/-]*)$"
-	InvalidCharErrorMessage      = "Password contains invalid characters"
-	SpecialCharErrorMessage      = "Must contain at least one special character"
-	CharLenErrorMessage          = "Must be at least 8 characters long"
 	accessTokenKey               = "jdskhhiuewfhosfkaskfhajksfeiwhfuiowehfiwejdkfewudhuiewhjfdiu"
 	refreshTokenKey              = "fdshfjdshfjhdsjlfhuoashfuherifherhfuqheruifhiquwhfukwjnfjiwhl"
 	DefaultCaptchaValue          = "11111"

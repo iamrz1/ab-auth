@@ -60,7 +60,7 @@ func (pr *CustomerRepo) GetCustomerRegistrationFromCache(username, otp string) (
 	if err != nil {
 		pr.Log.Errorf("GetCustomerRegistrationFromCache", "", err.Error())
 		if err == redis.Nil {
-			return nil, fmt.Errorf("%s", "Token expired")
+			return nil, fmt.Errorf("%s", "OTP expired")
 		}
 		return nil, err
 	}
