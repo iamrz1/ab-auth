@@ -490,8 +490,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: VerifySignUp uses user defined otp and matches it with existing
-        reference in cache to verify a signup
+      description: Use user defined otp to match it with existing reference in cache
+        to verify a signup
       parameters:
       - description: All fields are mandatory
         in: body
@@ -518,7 +518,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.EmptyErrorRes'
-      summary: VerifyAccessToken a new customer using otp
+      summary: Verify a new customer using otp
       tags:
       - Customers
 swagger: "2.0"

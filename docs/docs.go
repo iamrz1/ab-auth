@@ -477,7 +477,7 @@ var doc = `{
         },
         "/api/v1/public/customers/verify-signup": {
             "post": {
-                "description": "VerifySignUp uses user defined otp and matches it with existing reference in cache to verify a signup",
+                "description": "Use user defined otp to match it with existing reference in cache to verify a signup",
                 "consumes": [
                     "application/json"
                 ],
@@ -487,7 +487,7 @@ var doc = `{
                 "tags": [
                     "Customers"
                 ],
-                "summary": "VerifyAccessToken a new customer using otp",
+                "summary": "Verify a new customer using otp",
                 "parameters": [
                     {
                         "description": "All fields are mandatory",

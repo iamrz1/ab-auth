@@ -59,8 +59,8 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 // VerifySignUp godoc
-// @Summary VerifyAccessToken a new customer using otp
-// @Description VerifySignUp uses user defined otp and matches it with existing reference in cache to verify a signup
+// @Summary Verify a new customer using otp
+// @Description Use user defined otp to match it with existing reference in cache to verify a signup
 // @Tags Customers
 // @Accept  json
 // @Produce  json
