@@ -40,7 +40,7 @@ func (cmr *CommonRepo) GetOTP(username, service string, limit, limitDuration, lo
 }
 
 func (cmr *CommonRepo) SetOTP(username, service, otp string, durationSec int) error {
-	scmd := cmr.Cache.Client.Set(fmt.Sprintf("%s_%s_otp", username, service), otp, time.Duration(durationSec))
+	scmd := cmr.Cache.Client.Set(fmt.Sprintf("%s_%s_otp", username, service), otp, time.Second*time.Duration(durationSec))
 	if scmd.Err() != nil {
 		return fmt.Errorf("%s", "OTP request failed")
 	}
@@ -80,7 +80,7 @@ func (cmr *CommonRepo) EnsureUsageLimit(key string, limit, durationSec int) bool
 			cmr.Log.Errorf("EnsureUsageLimit", "", scmd.Err().Error())
 			return false
 		} else {
-			cmr.Cache.Client.Set(key, 1, time.Minute*time.Duration(durationSec))
+			cmr.Cache.Client.Set(key, 1, time.Second*time.Duration(durationSec))
 			return true
 		}
 	} else {

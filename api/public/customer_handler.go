@@ -185,7 +185,7 @@ func (pr *publicRouter) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param  Body body model.SetPasswordReq true "All fields are mandatory"
-// @Success 201 {object} response.EmptySuccessRes
+// @Success 200 {object} response.EmptySuccessRes
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
@@ -211,7 +211,7 @@ func (pr *publicRouter) SetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.ServeJSONObject(w, http.StatusCreated, "OTP sent", nil, nil, true)
+	utils.ServeJSONObject(w, http.StatusOK, "Password set", nil, nil, true)
 }
 
 //func (pr *publicRouter) PurgeCustomer(w http.ResponseWriter, r *http.Request) {

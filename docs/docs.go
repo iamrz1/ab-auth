@@ -396,8 +396,8 @@ var doc = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/response.EmptySuccessRes"
                         }
