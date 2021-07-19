@@ -32,6 +32,7 @@ func (pr *publicRouter) customerRouter() *chi.Mux {
 	r.Post("/signup", pr.Signup)
 	r.Post("/verify-signup", pr.VerifySignUp)
 	r.Post("/login", pr.Login)
+	r.Post("/forgot-password", pr.ForgotPassword)
 	//r.Get("/", pr.ListGenerics)
 	//r.Delete("/{slug}", pr.DeleteGeneric)
 	//r.Delete("/purge/{slug}", pr.PurgeGeneric)

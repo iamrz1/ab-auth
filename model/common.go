@@ -23,3 +23,9 @@ type Token struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
+
+type ForgotPasswordReq struct {
+	Username     string `json:"username" validate:"nonzero"`
+	CaptchaID    string `json:"captcha_id" validate:"nonzero"`
+	CaptchaValue string `json:"captcha_value" validate:"nonzero"`
+}

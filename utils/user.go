@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"regexp"
 	"strings"
+	"unicode"
 )
 
 func IsGenderValid(gender string) bool {
@@ -27,4 +29,34 @@ func IsValidPhoneNumber(phoneNumber string) bool {
 	}
 
 	return true
+}
+
+func ValidatePassword(password string) error {
+	var eightOrMore, special, invalid bool
+	var err error
+	characters := 0
+	for _, c := range password {
+		switch {
+		case unicode.IsPunct(c) || unicode.IsSymbol(c):
+			special = true
+			break
+		case !(unicode.IsLetter(c) || unicode.IsNumber(c)):
+			invalid = true
+		}
+
+		characters++
+	}
+	eightOrMore = characters >= 8
+
+	if !special {
+		err = fmt.Errorf("%s", SpecialCharErrorMessage)
+	}
+	if !eightOrMore {
+		err = fmt.Errorf("%s", CharLenErrorMessage)
+	}
+	if invalid {
+		err = fmt.Errorf("%s", InvalidCharErrorMessage)
+	}
+
+	return err
 }

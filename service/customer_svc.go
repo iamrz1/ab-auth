@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/iamrz1/ab-auth/config"
 	rest_error "github.com/iamrz1/ab-auth/error"
 	"github.com/iamrz1/ab-auth/infra"
@@ -33,7 +34,7 @@ func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.Cus
 }
 
 func (gs *customerService) CreateCustomer(ctx context.Context, req *model.CustomerSignupReq) (string, error) {
-	err := validatePassword(req.Password)
+	err := utils.ValidatePassword(req.Password)
 	if err != nil {
 		return "", rest_error.NewValidationError("", err)
 	}
@@ -45,15 +46,17 @@ func (gs *customerService) CreateCustomer(ctx context.Context, req *model.Custom
 	_, err = gs.GetCustomer(ctx, &model.Customer{Username: req.Username})
 	if err != nil {
 		if err != infra.ErrNotFound {
-			return "", rest_error.NewValidationError("", infra.ErrNotFound)
+			return "", err
 		}
 	} else {
 		return "", rest_error.NewValidationError("User already exists", err)
 	}
 
-	otp := utils.GetRandomDigits(5)
+	otp, err := gs.CommonRepo.GetOTP(req.Username, "signup", 5, 24*60*60, 10)
+	if err != nil {
+		return "", rest_error.NewGenericError(http.StatusTooManyRequests, err.Error())
+	}
 	// todo: send otp
-	//gs.CommonRepo.SaveOTP(req.Username, otp)
 
 	err = gs.CustomerRepo.HoldCustomerRegistrationInCache(otp, req)
 	if err != nil {
@@ -67,6 +70,15 @@ func (gs *customerService) CreateCustomer(ctx context.Context, req *model.Custom
 func (gs *customerService) VerifyCustomerSignUp(ctx context.Context, req *model.CustomerSignupVerificationReq) error {
 	if !utils.IsValidPhoneNumber(req.Username) {
 		return rest_error.NewValidationError("Phone number is not valid", nil)
+	}
+
+	ok, err := gs.CommonRepo.LockKey(fmt.Sprintf("%s_%s_otp_match", req.Username, "signup"), 5)
+	if err != nil || !ok {
+		return fmt.Errorf("%s", "Please try again ina few seconds")
+	}
+
+	if !gs.CommonRepo.EnsureUsageLimit(fmt.Sprintf("%s_%s_otp_gen_limit", req.Username, "signup"), 5, 5*60) {
+		return rest_error.NewGenericError(http.StatusTooManyRequests, "OTP verification failed")
 	}
 
 	customerData, err := gs.CustomerRepo.GetCustomerRegistrationFromCache(req.Username, req.OTP)
@@ -116,25 +128,6 @@ func (gs *customerService) Login(ctx context.Context, req *model.LoginReq) (*mod
 
 	return &model.Token{AccessToken: access, RefreshToken: refresh}, nil
 }
-
-//func (gs *customerService) Refresh(ctx context.Context, req *model.Token) (*model.Token, error) {
-//	//incorrectMsg := "Incorrect username or password"
-//
-//	//g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: req.Username})
-//	//if err != nil {
-//	//	gs.Log.Errorf("Login", "", err.Error())
-//	//	return nil, rest_error.NewValidationError(incorrectMsg, nil)
-//	//}
-//	//
-//	//if !utils.VerifyPassword(req.Password, g.Password) {
-//	//	gs.Log.Errorf("Login", "", "password mismatch")
-//	//	return nil, rest_error.NewValidationError(incorrectMsg, nil)
-//	//}
-//
-//	access, refresh := utils.GenerateTokens(g.Username, "", "customer")
-//
-//	return &model.Token{AccessToken: access, RefreshToken: refresh}, nil
-//}
 
 func (gs *customerService) GetShortProfile(ctx context.Context, req *model.Token) (*model.CustomerShort, error) {
 	claims, err := utils.VerifyToken(req.AccessToken, false)
@@ -284,4 +277,26 @@ func (gs *customerService) PurgeCustomer(ctx context.Context, delete *model.Cust
 	}
 
 	return g.ToResponse(), nil
+}
+
+func (gs *customerService) ForgotPassword(ctx context.Context, req *model.ForgotPasswordReq) (string, error) {
+	if !utils.IsValidPhoneNumber(req.Username) {
+		return "", rest_error.NewValidationError("Phone number is not valid", nil)
+	}
+
+	_, err := gs.GetCustomer(ctx, &model.Customer{Username: req.Username})
+	if err != nil {
+		if err != infra.ErrNotFound {
+			return "", err
+		}
+		return "", nil // lets just pretend that the user exists and throw off random api calls
+	}
+
+	otp, err := gs.CommonRepo.GetOTP(req.Username, "forgot", 2, 12*60*60, 10)
+	if err != nil {
+		return "", rest_error.NewGenericError(http.StatusTooManyRequests, err.Error())
+	}
+	// todo: send otp
+
+	return otp, nil
 }

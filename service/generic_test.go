@@ -1,6 +1,9 @@
 package service
 
-import "testing"
+import (
+	"github.com/iamrz1/ab-auth/utils"
+	"testing"
+)
 
 const (
 	name = "Service Model X"
@@ -149,17 +152,17 @@ const (
 //}
 
 func TestValidatePassword(t *testing.T) {
-	err := validatePassword("Evaly2020!")
+	err := utils.ValidatePassword("Evaly2020!")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = validatePassword("evaly2020!")
+	err = utils.ValidatePassword("evaly2020!")
 	if err != nil {
 		t.Log(err)
 	}
 
-	err = validatePassword("Evaly2020!বাংলা")
+	err = utils.ValidatePassword("Evaly2020!বাংলা")
 	if err != nil {
 		t.Log(err)
 	}

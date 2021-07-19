@@ -35,7 +35,7 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if pr.Services.CustomerService.Config.Environment == utils.EnvProduction || req.CaptchaValue != "11111" {
+	if pr.Services.CustomerService.Config.Environment == utils.EnvProduction || req.CaptchaValue != utils.DefaultCaptchaValue {
 		_, err = utils.VerifyCaptcha(req.CaptchaID, req.CaptchaValue)
 		if err != nil {
 			utils.HandleObjectError(w, rest_error.NewValidationError("", err))
@@ -126,6 +126,56 @@ func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ServeJSONObject(w, http.StatusOK, "Logged in", res, nil, true)
+}
+
+// ForgotPassword godoc
+// @Summary Reset user's password with otp
+// @Description ForgotPassword uses username and captcha to send otp to user's registered number
+// @Tags Customers
+// @Accept  json
+// @Produce  json
+// @Param  Body body model.ForgotPasswordReq true "All fields are mandatory"
+// @Success 201 {object} response.EmptySuccessRes
+// @Failure 400 {object} response.CustomerErrorRes
+// @Failure 404 {object} response.CustomerErrorRes
+// @Failure 500 {object} response.CustomerErrorRes
+// @Router /api/v1/public/customers/forgot-password [post]
+func (pr *publicRouter) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	req := model.ForgotPasswordReq{}
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
+		return
+	}
+
+	err = model.Validate(req)
+	if err != nil {
+		utils.HandleObjectError(w, rest_error.NewValidationError("Missing required field(s)", err))
+		return
+	}
+
+	if pr.Services.CustomerService.Config.Environment == utils.EnvProduction || req.CaptchaValue != utils.DefaultCaptchaValue {
+		_, err = utils.VerifyCaptcha(req.CaptchaID, req.CaptchaValue)
+		if err != nil {
+			utils.HandleObjectError(w, rest_error.NewValidationError("", err))
+			return
+		}
+	}
+
+	otp, err := pr.Services.CustomerService.ForgotPassword(r.Context(), &req)
+	if err != nil {
+		utils.HandleObjectError(w, err)
+		return
+	}
+
+	var meta map[string]string
+
+	if pr.Services.CustomerService.Config.Environment != utils.EnvProduction {
+		meta = map[string]string{"otp": otp}
+	}
+
+	utils.ServeJSONObject(w, http.StatusCreated, "OTP sent", nil, meta, true)
 }
 
 //func (pr *publicRouter) PurgeCustomer(w http.ResponseWriter, r *http.Request) {

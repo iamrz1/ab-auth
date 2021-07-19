@@ -193,6 +193,58 @@
                 }
             }
         },
+        "/api/v1/public/customers/forgot-password": {
+            "post": {
+                "description": "ForgotPassword uses username and captcha to send otp to user's registered number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Reset user's password with otp",
+                "parameters": [
+                    {
+                        "description": "All fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ForgotPasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptySuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerErrorRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/public/customers/login": {
             "post": {
                 "description": "Login uses user defined username and password to authenticate a user.",
@@ -453,6 +505,20 @@
         },
         "model.EmptyObject": {
             "type": "object"
+        },
+        "model.ForgotPasswordReq": {
+            "type": "object",
+            "properties": {
+                "captcha_id": {
+                    "type": "string"
+                },
+                "captcha_value": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
         },
         "model.LoginReq": {
             "type": "object",
