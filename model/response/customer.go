@@ -14,8 +14,8 @@ type CustomerSuccessRes struct {
 	Data      model.Customer `json:"data"`
 }
 
-// CustomerErrorRes example
-type CustomerErrorRes struct {
+// EmptyErrorRes example
+type EmptyErrorRes struct {
 	Success   bool              `json:"success" example:"false"`
 	Status    string            `json:"status" example:"Status string corresponding to the error"`
 	Message   string            `json:"message" example:"failure message"`

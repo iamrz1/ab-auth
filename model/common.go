@@ -29,3 +29,15 @@ type ForgotPasswordReq struct {
 	CaptchaID    string `json:"captcha_id" validate:"nonzero"`
 	CaptchaValue string `json:"captcha_value" validate:"nonzero"`
 }
+
+type SetPasswordReq struct {
+	Username string `json:"username" validate:"nonzero"`
+	Password string `json:"password" validate:"nonzero"`
+	OTP      string `json:"otp" validate:"nonzero"`
+}
+
+type UpdatePasswordReq struct {
+	Username        string `json:"-" validate:"nonzero"`
+	CurrentPassword string `json:"current_password" validate:"nonzero"`
+	NewPassword     string `json:"new_password" validate:"nonzero"`
+}

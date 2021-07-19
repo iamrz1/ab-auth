@@ -20,6 +20,8 @@ definitions:
         type: string
       organization:
         type: string
+      profile_pic_url:
+        type: string
       recovery_phone_number:
         type: string
       status:
@@ -44,6 +46,8 @@ definitions:
       occupation:
         type: string
       organization:
+        type: string
+      profile_pic_url:
         type: string
     type: object
   model.CustomerSignupReq:
@@ -84,6 +88,15 @@ definitions:
       username:
         type: string
     type: object
+  model.SetPasswordReq:
+    properties:
+      otp:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
   model.Token:
     properties:
       access_token:
@@ -91,21 +104,11 @@ definitions:
       refresh_token:
         type: string
     type: object
-  response.CustomerErrorRes:
+  model.UpdatePasswordReq:
     properties:
-      data:
-        $ref: '#/definitions/model.EmptyObject'
-      message:
-        example: failure message
+      current_password:
         type: string
-      status:
-        example: Status string corresponding to the error
-        type: string
-      success:
-        example: false
-        type: boolean
-      timestamp:
-        example: "2006-01-02T15:04:05.000Z"
+      new_password:
         type: string
     type: object
   response.CustomerSuccessRes:
@@ -120,6 +123,23 @@ definitions:
         type: string
       success:
         example: true
+        type: boolean
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
+    type: object
+  response.EmptyErrorRes:
+    properties:
+      data:
+        $ref: '#/definitions/model.EmptyObject'
+      message:
+        example: failure message
+        type: string
+      status:
+        example: Status string corresponding to the error
+        type: string
+      success:
+        example: false
         type: boolean
       timestamp:
         example: "2006-01-02T15:04:05.000Z"
@@ -169,6 +189,45 @@ info:
   title: auth
   version: "1.0"
 paths:
+  /api/v1/private/customers/password:
+    patch:
+      consumes:
+      - application/json
+      description: Update to a new password using user's existing password
+      parameters:
+      - description: Set access token here
+        in: header
+        name: authorization
+        required: true
+        type: string
+      - description: Some fields are mandatory
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdatePasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CustomerSuccessRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+      summary: Update existing password
+      tags:
+      - Customers
   /api/v1/private/customers/profile:
     get:
       description: Returns user's profile using access token
@@ -188,15 +247,15 @@ paths:
         "400":
           description: Invalid request body, or missing required fields.
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "401":
           description: Unauthorized access attempt.
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "500":
           description: API sever or db unreachable.
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
       summary: Get basic profile
       tags:
       - Customers
@@ -226,15 +285,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
       summary: Update basic profile
       tags:
       - Customers
@@ -259,7 +318,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
       summary: Refresh customer's access token
       tags:
       - Customers
@@ -285,7 +344,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
       summary: Verify customer's access token
       tags:
       - Customers
@@ -312,16 +371,16 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
-      summary: Reset user's password with otp
+            $ref: '#/definitions/response.EmptyErrorRes'
+      summary: Request OTP to reset password
       tags:
       - Customers
   /api/v1/public/customers/login:
@@ -347,16 +406,50 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
       summary: Login as a customer
+      tags:
+      - Customers
+  /api/v1/public/customers/set-password:
+    post:
+      consumes:
+      - application/json
+      description: Set new password using OTP received during forgot-password
+      parameters:
+      - description: All fields are mandatory
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/model.SetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.EmptySuccessRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.EmptyErrorRes'
+      summary: Set user's password with OTP
       tags:
       - Customers
   /api/v1/public/customers/signup:
@@ -381,15 +474,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
       summary: Signup a new customer
       tags:
       - Customers
@@ -416,15 +509,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.CustomerErrorRes'
+            $ref: '#/definitions/response.EmptyErrorRes'
       summary: VerifyAccessToken a new customer using otp
       tags:
       - Customers

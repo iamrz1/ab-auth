@@ -35,6 +35,7 @@ func (pr *privateRouter) customerRouter() *chi.Mux {
 	r.With(middleware.AuthenticatedOnly).Patch("/profile", pr.UpdateCustomerProfile)
 	r.With(middleware.AuthenticatedOnly).Get("/verify-token", pr.VerifyAccessToken)
 	r.With(middleware.JWTTokenOnly).Get("/refresh-token", pr.RefreshToken)
+	r.With(middleware.AuthenticatedOnly).Patch("/password", pr.UpdatePassword)
 	//r.Delete("/{slug}", pr.DeleteGeneric)
 	//r.Delete("/purge/{slug}", pr.PurgeGeneric)
 

@@ -74,7 +74,7 @@ func (gs *customerService) VerifyCustomerSignUp(ctx context.Context, req *model.
 
 	ok, err := gs.CommonRepo.LockKey(fmt.Sprintf("%s_%s_otp_match", req.Username, "signup"), 5)
 	if err != nil || !ok {
-		return fmt.Errorf("%s", "Please try again ina few seconds")
+		return fmt.Errorf("%s", "Please try again in a few seconds")
 	}
 
 	if !gs.CommonRepo.EnsureUsageLimit(fmt.Sprintf("%s_%s_otp_gen_limit", req.Username, "signup"), 5, 5*60) {
@@ -110,6 +110,16 @@ func (gs *customerService) VerifyCustomerSignUp(ctx context.Context, req *model.
 
 func (gs *customerService) Login(ctx context.Context, req *model.LoginReq) (*model.Token, error) {
 	incorrectMsg := "Incorrect username or password"
+
+	ok, err := gs.CommonRepo.LockKey(fmt.Sprintf("%s_%s_password_match", req.Username, "login"), 5)
+	if err != nil || !ok {
+		return nil, fmt.Errorf("%s", "Please try again in a few seconds")
+	}
+
+	if !gs.CommonRepo.EnsureUsageLimit(fmt.Sprintf("%s_%s_password_match_limit", req.Username, "login"), 5, 5*60) {
+		// max 5 try in 5 minutes
+		return nil, rest_error.NewGenericError(http.StatusTooManyRequests, "Please try again later")
+	}
 
 	g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: req.Username})
 	if err != nil {
@@ -206,13 +216,14 @@ func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.Custom
 	}
 
 	updateDoc := &model.Customer{
-		FullName:     strings.TrimSpace(req.FullName),
-		Gender:       strings.ToLower(strings.TrimSpace(req.Gender)),
-		Email:        strings.ToLower(strings.TrimSpace(req.Email)),
-		Occupation:   strings.TrimSpace(req.Occupation),
-		Organization: strings.TrimSpace(req.Organization),
-		BirthDate:    utils.GetTimeFromISOString(req.BirthDate),
-		UpdatedAt:    time.Now().UTC(),
+		FullName:      strings.TrimSpace(req.FullName),
+		Gender:        strings.ToLower(strings.TrimSpace(req.Gender)),
+		Email:         strings.ToLower(strings.TrimSpace(req.Email)),
+		Occupation:    strings.TrimSpace(req.Occupation),
+		Organization:  strings.TrimSpace(req.Organization),
+		BirthDate:     utils.GetTimeFromISOString(req.BirthDate),
+		ProfilePicURL: strings.TrimSpace(req.ProfilePicURL),
+		UpdatedAt:     time.Now().UTC(),
 	}
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
@@ -227,6 +238,47 @@ func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.Custom
 	}
 
 	return g.ToResponse(), nil
+}
+
+func (gs *customerService) UpdatePassword(ctx context.Context, req *model.UpdatePasswordReq) (*model.Customer, error) {
+	filter := &model.Customer{Username: req.Username}
+	c, err := gs.CustomerRepo.GetCustomer(ctx, filter)
+	if err != nil {
+		if err == infra.ErrNotFound {
+			return nil, rest_error.NewValidationError("", infra.ErrNotFound)
+		}
+		return nil, err
+	}
+
+	ok, err := gs.CommonRepo.LockKey(fmt.Sprintf("%s_%s_password_match", req.Username, "update"), 5)
+	if err != nil || !ok {
+		return nil, fmt.Errorf("%s", "Please try again in a few seconds")
+	}
+
+	if !gs.CommonRepo.EnsureUsageLimit(fmt.Sprintf("%s_%s_password_match_limit", req.Username, "update"), 5, 5*60) {
+		// max 5 try in 5 minutes
+		return nil, rest_error.NewGenericError(http.StatusTooManyRequests, "Please try again later")
+	}
+
+	if !utils.VerifyPassword(req.CurrentPassword, c.Password) {
+		gs.Log.Errorf("UpdatePassword", "", "password mismatch")
+		return nil, rest_error.NewValidationError("Incorrect password", nil)
+	}
+
+	updateDoc := &model.Customer{
+		Password:    utils.GetEncodedPassword(req.NewPassword),
+		LastResetAt: time.Now().UTC(),
+	}
+
+	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
+	if err != nil {
+		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		return nil, err
+	}
+
+	utils.SetLastResetAt(req.Username, updateDoc.LastResetAt.Unix())
+
+	return c.ToResponse(), nil
 }
 
 func (gs *customerService) DeleteCustomer(ctx context.Context, delete *model.CustomerDeleteReq) (*model.Customer, error) {
@@ -296,7 +348,88 @@ func (gs *customerService) ForgotPassword(ctx context.Context, req *model.Forgot
 	if err != nil {
 		return "", rest_error.NewGenericError(http.StatusTooManyRequests, err.Error())
 	}
+
+	err = gs.CommonRepo.SetOTP(req.Username, "forgot", otp, 5*60)
+	if err != nil {
+		return "", rest_error.NewValidationError("", err)
+	}
 	// todo: send otp
 
 	return otp, nil
+}
+
+func (gs *customerService) SetPassword(ctx context.Context, req *model.SetPasswordReq) error {
+	if !utils.IsValidPhoneNumber(req.Username) {
+		return rest_error.NewValidationError("Phone number is not valid", nil)
+	}
+
+	ok, err := gs.CommonRepo.LockKey(fmt.Sprintf("%s_%s_otp_match", req.Username, "forgot"), 5)
+	if err != nil || !ok {
+		return fmt.Errorf("%s", "Please try again in a few seconds")
+	}
+
+	if !gs.CommonRepo.EnsureUsageLimit(fmt.Sprintf("%s_%s_otp_match_limit", req.Username, "forgot"), 5, 5*60) {
+		// max 5 try in 5 minutes
+		return rest_error.NewGenericError(http.StatusTooManyRequests, "OTP verification failed")
+	}
+
+	err = gs.CommonRepo.MatchOTP(req.Username, "forgot", req.OTP)
+	if err != nil {
+		return rest_error.NewValidationError("", err)
+	}
+
+	filter := &model.Customer{Username: req.Username}
+
+	updateDoc := &model.Customer{
+		Password:    utils.GetEncodedPassword(req.Password),
+		LastResetAt: time.Now().UTC(),
+	}
+
+	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
+	if err != nil {
+		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		return err
+	}
+
+	utils.SetLastResetAt(req.Username, updateDoc.LastResetAt.Unix())
+
+	return nil
+}
+
+func (gs *customerService) ChangePassword(ctx context.Context, req *model.SetPasswordReq) error {
+	if !utils.IsValidPhoneNumber(req.Username) {
+		return rest_error.NewValidationError("Phone number is not valid", nil)
+	}
+
+	ok, err := gs.CommonRepo.LockKey(fmt.Sprintf("%s_%s_otp_match", req.Username, "forgot"), 5)
+	if err != nil || !ok {
+		return fmt.Errorf("%s", "Please try again in a few seconds")
+	}
+
+	if !gs.CommonRepo.EnsureUsageLimit(fmt.Sprintf("%s_%s_otp_match_limit", req.Username, "forgot"), 5, 5*60) {
+		// max 5 try in 5 minutes
+		return rest_error.NewGenericError(http.StatusTooManyRequests, "Please try again later")
+	}
+
+	err = gs.CommonRepo.MatchOTP(req.Username, "forgot", req.OTP)
+	if err != nil {
+		return rest_error.NewValidationError("", err)
+	}
+
+	filter := &model.Customer{Username: req.Username}
+
+	updateDoc := &model.Customer{
+		Password:    utils.GetEncodedPassword(req.Password),
+		LastResetAt: time.Now().UTC(),
+	}
+
+	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
+	if err != nil {
+		gs.Log.Errorf("UpdateCustomerProfile", "", err.Error())
+		return err
+	}
+
+	utils.SetLastResetAt(req.Username, updateDoc.LastResetAt.Unix())
+
+	return nil
 }

@@ -28,6 +28,65 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/private/customers/password": {
+            "patch": {
+                "description": "Update to a new password using user's existing password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Update existing password",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Set access token here",
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Some fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UpdatePasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CustomerSuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/private/customers/profile": {
             "get": {
                 "description": "Returns user's profile using access token",
@@ -57,19 +116,19 @@ var doc = `{
                     "400": {
                         "description": "Invalid request body, or missing required fields.",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "401": {
                         "description": "Unauthorized access attempt.",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "500": {
                         "description": "API sever or db unreachable.",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     }
                 }
@@ -114,19 +173,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     }
                 }
@@ -164,7 +223,7 @@ var doc = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     }
                 }
@@ -202,7 +261,7 @@ var doc = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     }
                 }
@@ -220,7 +279,7 @@ var doc = `{
                 "tags": [
                     "Customers"
                 ],
-                "summary": "Reset user's password with otp",
+                "summary": "Request OTP to reset password",
                 "parameters": [
                     {
                         "description": "All fields are mandatory",
@@ -242,19 +301,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     }
                 }
@@ -294,19 +353,71 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/public/customers/set-password": {
+            "post": {
+                "description": "Set new password using OTP received during forgot-password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Set user's password with OTP",
+                "parameters": [
+                    {
+                        "description": "All fields are mandatory",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.SetPasswordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptySuccessRes"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     }
                 }
@@ -346,19 +457,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     }
                 }
@@ -398,19 +509,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/response.CustomerErrorRes"
+                            "$ref": "#/definitions/response.EmptyErrorRes"
                         }
                     }
                 }
@@ -448,6 +559,9 @@ var doc = `{
                 "organization": {
                     "type": "string"
                 },
+                "profile_pic_url": {
+                    "type": "string"
+                },
                 "recovery_phone_number": {
                     "type": "string"
                 },
@@ -483,6 +597,9 @@ var doc = `{
                     "type": "string"
                 },
                 "organization": {
+                    "type": "string"
+                },
+                "profile_pic_url": {
                     "type": "string"
                 }
             }
@@ -546,6 +663,20 @@ var doc = `{
                 }
             }
         },
+        "model.SetPasswordReq": {
+            "type": "object",
+            "properties": {
+                "otp": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Token": {
             "type": "object",
             "properties": {
@@ -557,27 +688,14 @@ var doc = `{
                 }
             }
         },
-        "response.CustomerErrorRes": {
+        "model.UpdatePasswordReq": {
             "type": "object",
             "properties": {
-                "data": {
-                    "$ref": "#/definitions/model.EmptyObject"
+                "current_password": {
+                    "type": "string"
                 },
-                "message": {
-                    "type": "string",
-                    "example": "failure message"
-                },
-                "status": {
-                    "type": "string",
-                    "example": "Status string corresponding to the error"
-                },
-                "success": {
-                    "type": "boolean",
-                    "example": false
-                },
-                "timestamp": {
-                    "type": "string",
-                    "example": "2006-01-02T15:04:05.000Z"
+                "new_password": {
+                    "type": "string"
                 }
             }
         },
@@ -598,6 +716,30 @@ var doc = `{
                 "success": {
                     "type": "boolean",
                     "example": true
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
+                }
+            }
+        },
+        "response.EmptyErrorRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/model.EmptyObject"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "failure message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Status string corresponding to the error"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
                 },
                 "timestamp": {
                     "type": "string",

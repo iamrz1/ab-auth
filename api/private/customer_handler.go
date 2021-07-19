@@ -17,7 +17,7 @@ import (
 // @Produce  json
 // @Param authorization header string true "Value of access token"
 // @Success 200 {object} response.EmptySuccessRes
-// @Failure 401 {object} response.CustomerErrorRes
+// @Failure 401 {object} response.EmptyErrorRes
 // @Router /api/v1/private/customers/verify-token [get]
 func (pr *privateRouter) VerifyAccessToken(w http.ResponseWriter, r *http.Request) {
 	utils.ServeJSONObject(w, http.StatusOK, "Token verified", nil, nil, true)
@@ -30,9 +30,9 @@ func (pr *privateRouter) VerifyAccessToken(w http.ResponseWriter, r *http.Reques
 // @Produce  json
 // @Param authorization header string true "Set access token here"
 // @Success 200 {object} response.CustomerSuccessRes
-// @Failure 400 {object} response.CustomerErrorRes "Invalid request body, or missing required fields."
-// @Failure 401 {object} response.CustomerErrorRes "Unauthorized access attempt."
-// @Failure 500 {object} response.CustomerErrorRes "API sever or db unreachable."
+// @Failure 400 {object} response.EmptyErrorRes "Invalid request body, or missing required fields."
+// @Failure 401 {object} response.EmptyErrorRes "Unauthorized access attempt."
+// @Failure 500 {object} response.EmptyErrorRes "API sever or db unreachable."
 // @Router /api/v1/private/customers/profile [get]
 func (pr *privateRouter) GetCustomerProfile(w http.ResponseWriter, r *http.Request) {
 	username := r.Header.Get(utils.UsernameKey)
@@ -60,9 +60,9 @@ func (pr *privateRouter) GetCustomerProfile(w http.ResponseWriter, r *http.Reque
 // @Param authorization header string true "Set access token here"
 // @Param  Body body model.CustomerProfileUpdateReq true "Some fields are mandatory"
 // @Success 200 {object} response.CustomerSuccessRes
-// @Failure 400 {object} response.CustomerErrorRes
-// @Failure 404 {object} response.CustomerErrorRes
-// @Failure 500 {object} response.CustomerErrorRes
+// @Failure 400 {object} response.EmptyErrorRes
+// @Failure 404 {object} response.EmptyErrorRes
+// @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/private/customers/profile [patch]
 func (pr *privateRouter) UpdateCustomerProfile(w http.ResponseWriter, r *http.Request) {
 	username := r.Header.Get(utils.UsernameKey)
@@ -101,7 +101,7 @@ func (pr *privateRouter) UpdateCustomerProfile(w http.ResponseWriter, r *http.Re
 // @Produce  json
 // @Param authorization header string true "Value of refresh token"
 // @Success 200 {object} response.TokenSuccessRes
-// @Failure 401 {object} response.CustomerErrorRes
+// @Failure 401 {object} response.EmptyErrorRes
 // @Router /api/v1/private/customers/refresh-token [get]
 func (pr *privateRouter) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	jwtTkn := r.Header.Get(utils.AuthorizationKey)
@@ -131,6 +131,48 @@ func (pr *privateRouter) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	token := model.Token{AccessToken: access, RefreshToken: refresh}
 
 	utils.ServeJSONObject(w, http.StatusOK, "Token refreshed", &token, nil, true)
+}
+
+// UpdatePassword godoc
+// @Summary Update existing password
+// @Description Update to a new password using user's existing password
+// @Tags Customers
+// @Accept  json
+// @Produce  json
+// @Param authorization header string true "Set access token here"
+// @Param  Body body model.UpdatePasswordReq true "Some fields are mandatory"
+// @Success 200 {object} response.CustomerSuccessRes
+// @Failure 400 {object} response.EmptyErrorRes
+// @Failure 404 {object} response.EmptyErrorRes
+// @Failure 500 {object} response.EmptyErrorRes
+// @Router /api/v1/private/customers/password [patch]
+func (pr *privateRouter) UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	username := r.Header.Get(utils.UsernameKey)
+	if username == "" {
+		utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Missing username"))
+	}
+
+	req := model.UpdatePasswordReq{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
+		return
+	}
+	req.Username = username
+
+	err = model.Validate(req)
+	if err != nil {
+		utils.HandleObjectError(w, rest_error.NewValidationError("missing required field(s)", err))
+		return
+	}
+
+	data, err := pr.Services.CustomerService.UpdatePassword(r.Context(), &req)
+	if err != nil {
+		utils.HandleObjectError(w, err)
+		return
+	}
+
+	utils.ServeJSONObject(w, http.StatusOK, "Password updated", &data, nil, true)
 }
 
 //func (pr *privateRouter) PurgeCustomer(w http.ResponseWriter, r *http.Request) {

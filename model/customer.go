@@ -20,6 +20,7 @@ type Customer struct {
 	BirthDateString     string    `json:"birth_date,omitempty" bson:"-"`
 	Status              string    `json:"status,omitempty" bson:"status,omitempty"`
 	IsVerified          *bool     `json:"is_verified,omitempty" bson:"is_verified,omitempty"`
+	ProfilePicURL       string    `json:"profile_pic_url,omitempty" bson:"profile_pic_url,omitempty"`
 	IsDeleted           *bool     `json:"is_deleted,omitempty" bson:"is_deleted,omitempty"`
 	LastResetAt         time.Time `json:"-" bson:"last_reset_at,omitempty"`
 	CreatedAt           time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
@@ -73,13 +74,14 @@ type CustomerListReq struct {
 }
 
 type CustomerProfileUpdateReq struct {
-	Username     string `json:"-" validate:"nonzero"` //username will come from either token or url param
-	FullName     string `json:"full_name,omitempty"`
-	Gender       string `json:"gender,omitempty" example:"male/female/other"`
-	Email        string `json:"email,omitempty"`
-	Occupation   string `json:"occupation,omitempty"`
-	Organization string `json:"organization,omitempty"`
-	BirthDate    string `json:"birth_date,omitempty" example:"2006-01-02T15:04:05.000Z"`
+	Username      string `json:"-" validate:"nonzero"` //username will come from either token or url param
+	FullName      string `json:"full_name,omitempty"`
+	Gender        string `json:"gender,omitempty" example:"male/female/other"`
+	Email         string `json:"email,omitempty"`
+	Occupation    string `json:"occupation,omitempty"`
+	Organization  string `json:"organization,omitempty"`
+	BirthDate     string `json:"birth_date,omitempty" example:"2006-01-02T15:04:05.000Z"`
+	ProfilePicURL string `json:"profile_pic_url,omitempty" bson:"profile_pic_url,omitempty"`
 	//RecoveryPhoneNumber string `json:"recovery_phone_number,omitempty"`
 	IsVerified *bool `json:"-"`
 	IsDeleted  *bool `json:"-"`

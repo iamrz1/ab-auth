@@ -25,63 +25,6 @@ func NewCommonRepo(db infra.DB, cache *infraCache.Redis, log logger.StructLogger
 	}
 }
 
-func (cmr *CommonRepo) VerifyOTP(username, process, otp string) error {
-	bcmd := cmr.Cache.Client.SetNX(fmt.Sprintf("otp.lock.%s", username), 1, time.Second*5)
-	if bcmd.Err() != nil {
-		log.Println(bcmd.Err())
-		return fmt.Errorf("%s", utils.TryAgainMessage)
-	}
-	boolVal, err := bcmd.Result()
-	if err != nil || !boolVal {
-		log.Println(err, boolVal)
-		return fmt.Errorf("%s", utils.TryAgainMessage)
-	}
-
-	otpAttemptKey := fmt.Sprintf("otp.attempt.%s.%s", process, username)
-	cmr.Cache.Client.Incr(otpAttemptKey)
-	gcmd := cmr.Cache.Client.Get(otpAttemptKey)
-	if gcmd.Err() != nil {
-		log.Println(gcmd.Err())
-		return fmt.Errorf("%s", utils.TryAgainMessage)
-	}
-
-	count, err := gcmd.Int()
-	if err != nil {
-		log.Println(err)
-		return fmt.Errorf("%s", utils.TryAgainMessage)
-	}
-
-	log.Println("otpAttempt count:", count)
-
-	if count > utils.MaxOTPAttempt {
-		time.Sleep(time.Duration(count) * time.Second) // to jam connection
-		return fmt.Errorf("%s", utils.TryAgainMessage)
-	}
-
-	invalidOTP := "Invalid OTP"
-	key := fmt.Sprintf("otp.%s", username)
-	scmd := cmr.Cache.Client.Get(key)
-	if scmd.Err() != nil {
-		log.Println(scmd.Err())
-		return fmt.Errorf("%s", invalidOTP)
-	}
-
-	cachedOtp, err := scmd.Result()
-	if err != nil {
-		log.Println(err)
-		return fmt.Errorf("%s", invalidOTP)
-	}
-
-	if cachedOtp != otp {
-		log.Println(cachedOtp, otp)
-		return fmt.Errorf("%s", invalidOTP)
-	}
-
-	cmr.Cache.Client.Del(key)
-
-	return nil
-}
-
 func (cmr *CommonRepo) GetOTP(username, service string, limit, limitDuration, lockDuration int) (string, error) {
 	otp := utils.GetRandomDigits(5)
 	ok, err := cmr.LockKey(fmt.Sprintf("%s_%s_otp_gen", username, service), lockDuration)
@@ -94,6 +37,28 @@ func (cmr *CommonRepo) GetOTP(username, service string, limit, limitDuration, lo
 	}
 
 	return otp, nil
+}
+
+func (cmr *CommonRepo) SetOTP(username, service, otp string, durationSec int) error {
+	scmd := cmr.Cache.Client.Set(fmt.Sprintf("%s_%s_otp", username, service), otp, time.Duration(durationSec))
+	if scmd.Err() != nil {
+		return fmt.Errorf("%s", "OTP request failed")
+	}
+
+	return nil
+}
+
+func (cmr *CommonRepo) MatchOTP(username, service, otp string) error {
+	scmd := cmr.Cache.Client.Get(fmt.Sprintf("%s_%s_otp", username, service))
+	if scmd.Err() != nil {
+		return fmt.Errorf("%s", "OTP match failed")
+	}
+
+	if scmd.Val() != otp {
+		return fmt.Errorf("%s", "Incorrect OTP")
+	}
+
+	return nil
 }
 
 func (cmr *CommonRepo) LockKey(key string, durationSec int) (bool, error) {

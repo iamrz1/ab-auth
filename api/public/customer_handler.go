@@ -17,9 +17,9 @@ import (
 // @Produce  json
 // @Param  Body body model.CustomerSignupReq true "All fields are mandatory"
 // @Success 201 {object} response.EmptySuccessRes
-// @Failure 400 {object} response.CustomerErrorRes
-// @Failure 404 {object} response.CustomerErrorRes
-// @Failure 500 {object} response.CustomerErrorRes
+// @Failure 400 {object} response.EmptyErrorRes
+// @Failure 404 {object} response.EmptyErrorRes
+// @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/signup [post]
 func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 	req := model.CustomerSignupReq{}
@@ -66,9 +66,9 @@ func (pr *publicRouter) Signup(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param  Body body model.CustomerSignupVerificationReq true "All fields are mandatory"
 // @Success 200 {object} response.EmptySuccessRes
-// @Failure 400 {object} response.CustomerErrorRes
-// @Failure 404 {object} response.CustomerErrorRes
-// @Failure 500 {object} response.CustomerErrorRes
+// @Failure 400 {object} response.EmptyErrorRes
+// @Failure 404 {object} response.EmptyErrorRes
+// @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/verify-signup [post]
 func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
 	req := model.CustomerSignupVerificationReq{}
@@ -101,9 +101,9 @@ func (pr *publicRouter) VerifySignUp(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param  Body body model.LoginReq true "All fields are mandatory"
 // @Success 200 {object} response.TokenSuccessRes
-// @Failure 400 {object} response.CustomerErrorRes
-// @Failure 404 {object} response.CustomerErrorRes
-// @Failure 500 {object} response.CustomerErrorRes
+// @Failure 400 {object} response.EmptyErrorRes
+// @Failure 404 {object} response.EmptyErrorRes
+// @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/login [post]
 func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
 	req := model.LoginReq{}
@@ -129,16 +129,16 @@ func (pr *publicRouter) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 // ForgotPassword godoc
-// @Summary Reset user's password with otp
+// @Summary Request OTP to reset password
 // @Description ForgotPassword uses username and captcha to send otp to user's registered number
 // @Tags Customers
 // @Accept  json
 // @Produce  json
 // @Param  Body body model.ForgotPasswordReq true "All fields are mandatory"
 // @Success 201 {object} response.EmptySuccessRes
-// @Failure 400 {object} response.CustomerErrorRes
-// @Failure 404 {object} response.CustomerErrorRes
-// @Failure 500 {object} response.CustomerErrorRes
+// @Failure 400 {object} response.EmptyErrorRes
+// @Failure 404 {object} response.EmptyErrorRes
+// @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/forgot-password [post]
 func (pr *publicRouter) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	req := model.ForgotPasswordReq{}
@@ -176,6 +176,42 @@ func (pr *publicRouter) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ServeJSONObject(w, http.StatusCreated, "OTP sent", nil, meta, true)
+}
+
+// SetPassword godoc
+// @Summary Set user's password with OTP
+// @Description Set new password using OTP received during forgot-password
+// @Tags Customers
+// @Accept  json
+// @Produce  json
+// @Param  Body body model.SetPasswordReq true "All fields are mandatory"
+// @Success 201 {object} response.EmptySuccessRes
+// @Failure 400 {object} response.EmptyErrorRes
+// @Failure 404 {object} response.EmptyErrorRes
+// @Failure 500 {object} response.EmptyErrorRes
+// @Router /api/v1/public/customers/set-password [post]
+func (pr *publicRouter) SetPassword(w http.ResponseWriter, r *http.Request) {
+	req := model.SetPasswordReq{}
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
+		return
+	}
+
+	err = model.Validate(req)
+	if err != nil {
+		utils.HandleObjectError(w, rest_error.NewValidationError("Missing required field(s)", err))
+		return
+	}
+
+	err = pr.Services.CustomerService.SetPassword(r.Context(), &req)
+	if err != nil {
+		utils.HandleObjectError(w, err)
+		return
+	}
+
+	utils.ServeJSONObject(w, http.StatusCreated, "OTP sent", nil, nil, true)
 }
 
 //func (pr *publicRouter) PurgeCustomer(w http.ResponseWriter, r *http.Request) {
