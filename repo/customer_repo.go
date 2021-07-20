@@ -20,10 +20,10 @@ type CustomerRepo struct {
 	DB    infra.DB
 	Cache *infraCache.Redis
 	Table string
-	Log   logger.StructLogger
+	Log   logger.Logger
 }
 
-func NewCustomerRepo(db infra.DB, table string, cache *infraCache.Redis, log logger.StructLogger) *CustomerRepo {
+func NewCustomerRepo(db infra.DB, table string, cache *infraCache.Redis, log logger.Logger) *CustomerRepo {
 	return &CustomerRepo{
 		DB:    db,
 		Cache: cache,

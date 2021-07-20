@@ -22,11 +22,11 @@ type customerService struct {
 	CommonRepo   *repo.CommonRepo
 	CustomerRepo *repo.CustomerRepo
 	AddressRepo  *repo.AddressRepo
-	Log          logger.StructLogger
+	Log          logger.Logger
 	Config       *config.AppConfig
 }
 
-func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.CustomerRepo, ar *repo.AddressRepo, logger logger.StructLogger) *customerService {
+func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.CustomerRepo, ar *repo.AddressRepo, logger logger.Logger) *customerService {
 	return &customerService{
 		CommonRepo:   cm,
 		CustomerRepo: cs,

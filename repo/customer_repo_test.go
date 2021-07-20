@@ -50,7 +50,7 @@ func init() {
 	cr = CustomerRepo{
 		DB:    db,
 		Table: cfg.CustomerTable,
-		Log:   logger.DefaultOutStructLogger,
+		Log:   logger.GetDefaultStructLogger(true),
 	}
 }
 

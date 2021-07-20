@@ -9,10 +9,10 @@ import (
 
 type privateRouter struct {
 	Services *service.Config
-	Log      logger.StructLogger
+	Log      logger.Logger
 }
 
-func NewPrivateRouter(svc *service.Config, logStruct logger.StructLogger) *privateRouter {
+func NewPrivateRouter(svc *service.Config, logStruct logger.Logger) *privateRouter {
 	return &privateRouter{
 		Services: svc,
 		Log:      logStruct,

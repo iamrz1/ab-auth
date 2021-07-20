@@ -8,10 +8,10 @@ import (
 
 type publicRouter struct {
 	Services *service.Config
-	Log      logger.StructLogger
+	Log      logger.Logger
 }
 
-func NewPublicRouter(svc *service.Config, logStruct logger.StructLogger) *publicRouter {
+func NewPublicRouter(svc *service.Config, logStruct logger.Logger) *publicRouter {
 	return &publicRouter{
 		Services: svc,
 		Log:      logStruct,

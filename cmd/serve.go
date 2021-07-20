@@ -50,7 +50,11 @@ func StartServer() (*http.Server, error) {
 		return nil, err
 	}
 	//logStruct
-	logStruct := logger.DefaultOutStructLogger
+	verbose := false
+	if os.Getenv("VERBOSE") == "true" {
+		verbose = true
+	}
+	logStruct := logger.GetDefaultStructLogger(verbose)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 	defer cancel()
 

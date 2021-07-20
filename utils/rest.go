@@ -80,8 +80,6 @@ func ServeJSONList(w http.ResponseWriter, code int, message string, list interfa
 }
 
 func HandleObjectError(w http.ResponseWriter, err error) {
-	log.Println("service error: ", err)
-
 	errMeta := map[string]string{}
 	if os.Getenv("ENV") != "prod" {
 		errMeta["error"] = err.Error()

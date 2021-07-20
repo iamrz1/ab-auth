@@ -19,7 +19,7 @@ import (
 	"github.com/iamrz1/ab-auth/api/health"
 )
 
-func Start(cfg *config.AppConfig, svc *service.Config, logger logger.StructLogger) (*http.Server, error) {
+func Start(cfg *config.AppConfig, svc *service.Config, logger logger.Logger) (*http.Server, error) {
 
 	addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 
@@ -61,7 +61,7 @@ func Stop(server *http.Server) error {
 	return nil
 }
 
-func SetupRouter(cfg *config.AppConfig, svc *service.Config, logger logger.StructLogger) (*chi.Mux, error) {
+func SetupRouter(cfg *config.AppConfig, svc *service.Config, logger logger.Logger) (*chi.Mux, error) {
 	r := chi.NewRouter()
 
 	r.Use(chiMiddleware.RequestID)

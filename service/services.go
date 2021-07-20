@@ -18,7 +18,7 @@ func getServiceConfig(cs *customerService) *Config {
 	return &Config{CustomerService: cs}
 }
 
-func SetupServiceConfig(cfg *config.AppConfig, db infra.DB, cache *infraCache.Redis, logStruct logger.StructLogger) *Config {
+func SetupServiceConfig(cfg *config.AppConfig, db infra.DB, cache *infraCache.Redis, logStruct logger.Logger) *Config {
 	customerRepo := repo.NewCustomerRepo(db, cfg.CustomerTable, cache, logStruct)
 	addressRepo := repo.NewAddressRepo(db, cfg.AddressTable, "address_preset", logStruct)
 	commonRepo := repo.NewCommonRepo(db, cache, logStruct)

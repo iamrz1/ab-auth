@@ -8,7 +8,7 @@ import (
 	"github.com/iamrz1/ab-auth/service"
 )
 
-func V1Router(svc *service.Config, logger logger.StructLogger) *chi.Mux {
+func V1Router(svc *service.Config, logger logger.Logger) *chi.Mux {
 	r := chi.NewRouter()
 	publicRouter := public.NewPublicRouter(svc, logger)
 	privateRouter := private.NewPrivateRouter(svc, logger)

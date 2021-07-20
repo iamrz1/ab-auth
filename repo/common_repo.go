@@ -14,10 +14,10 @@ import (
 type CommonRepo struct {
 	DB    infra.DB
 	Cache *infraCache.Redis
-	Log   logger.StructLogger
+	Log   logger.Logger
 }
 
-func NewCommonRepo(db infra.DB, cache *infraCache.Redis, log logger.StructLogger) *CommonRepo {
+func NewCommonRepo(db infra.DB, cache *infraCache.Redis, log logger.Logger) *CommonRepo {
 	return &CommonRepo{
 		DB:    db,
 		Cache: cache,

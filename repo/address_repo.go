@@ -15,10 +15,10 @@ type AddressRepo struct {
 	DB           infra.DB
 	AddressTable string
 	BDGeoTable   string
-	Log          logger.StructLogger
+	Log          logger.Logger
 }
 
-func NewAddressRepo(db infra.DB, addressTable, lookupTable string, log logger.StructLogger) *AddressRepo {
+func NewAddressRepo(db infra.DB, addressTable, lookupTable string, log logger.Logger) *AddressRepo {
 	return &AddressRepo{
 		DB:           db,
 		Log:          log,
