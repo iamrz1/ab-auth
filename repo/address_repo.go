@@ -99,7 +99,7 @@ func (ar *AddressRepo) PurgeAddress(ctx context.Context, filter interface{}) (in
 	return purged, nil
 }
 
-func (ar *AddressRepo) GetBdLocations(ctx context.Context, filter interface{}, listOptions *model.ListOptions) ([]*model.BDLocation, error) {
+func (ar *AddressRepo) GetBdLocations(ctx context.Context, filter interface{}, listOptions *model.ListOptions) ([]*model.BDLocation, int64, error) {
 	res := make([]*model.BDLocation, 0)
 	if listOptions == nil {
 		listOptions = &model.ListOptions{}
@@ -110,8 +110,14 @@ func (ar *AddressRepo) GetBdLocations(ctx context.Context, filter interface{}, l
 	err := ar.DB.List(ctx, ar.BDGeoTable, filter, listOptions.Page, listOptions.Limit, &res, listOptions.Sort)
 	if err != nil {
 		ar.Log.Error("GetAddresses", "", err.Error())
-		return nil, err
+		return nil, 0, err
 	}
 
-	return res, nil
+	n, err := ar.DB.FindAndCount(ctx, ar.BDGeoTable, filter)
+	if err != nil {
+		ar.Log.Error("CountCustomer", "", err.Error())
+		return nil, 0, err
+	}
+
+	return res, n, nil
 }

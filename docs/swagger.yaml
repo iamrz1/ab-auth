@@ -99,6 +99,21 @@ definitions:
       union_slug:
         type: string
     type: object
+  model.BDLocation:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      name_bn:
+        type: string
+      parent:
+        type: string
+      slug:
+        type: string
+      type:
+        type: string
+    type: object
   model.Customer:
     properties:
       birth_date:
@@ -219,6 +234,8 @@ definitions:
       message:
         example: success message
         type: string
+      meta:
+        $ref: '#/definitions/response.ListMeta'
       status:
         example: OK
         type: string
@@ -236,6 +253,27 @@ definitions:
       message:
         example: success message
         type: string
+      status:
+        example: OK
+        type: string
+      success:
+        example: true
+        type: boolean
+      timestamp:
+        example: "2006-01-02T15:04:05.000Z"
+        type: string
+    type: object
+  response.BDLocationListSuccessRes:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.BDLocation'
+        type: array
+      message:
+        example: success message
+        type: string
+      meta:
+        $ref: '#/definitions/response.ListMeta'
       status:
         example: OK
         type: string
@@ -315,6 +353,17 @@ definitions:
       timestamp:
         example: "2006-01-02T15:04:05.000Z"
         type: string
+    type: object
+  response.ListMeta:
+    properties:
+      Limit:
+        type: integer
+      count:
+        type: integer
+      page:
+        type: integer
+      pages:
+        type: integer
     type: object
   response.TokenSuccessRes:
     properties:
@@ -705,6 +754,40 @@ paths:
       summary: Verify customer's access token
       tags:
       - Customers
+  /api/v1/public/bd-area:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of BD areas under selected parent (slug value). No parent
+        returns list of divisions. Division as parent will return districts and so
+        on)
+      parameters:
+      - description: 'Default value: empty-string'
+        in: query
+        name: parent
+        type: string
+      - description: 'Default value: 1'
+        in: query
+        name: page
+        type: integer
+      - description: 'Default value: 10'
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BDLocationListSuccessRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.EmptyListErrorRes'
+      summary: Fetch BD area presets (division, district, sub-district)
+      tags:
+      - Common
   /api/v1/public/customers/forgot-password:
     post:
       consumes:

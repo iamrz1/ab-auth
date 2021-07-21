@@ -38,8 +38,22 @@ type TokenSuccessRes struct {
 }
 
 type ListMeta struct {
-	Page  int `json:"page"`
-	Pages int `json:"pages"`
-	Limit int `json:"Limit"`
-	Count int `json:"count"`
+	Page  int64 `json:"page"`
+	Pages int64 `json:"pages"`
+	Limit int64 `json:"Limit"`
+	Count int64 `json:"count"`
+}
+
+func GetListMeta(page, limit, count int64) *ListMeta {
+	pages := count / limit
+	if count%limit != 0 {
+		pages++
+	}
+
+	return &ListMeta{
+		Page:  page,
+		Pages: pages,
+		Limit: limit,
+		Count: count,
+	}
 }

@@ -599,3 +599,17 @@ func (gs *customerService) SetPrimaryAddress(ctx context.Context, req *model.Add
 
 	return list, nil
 }
+
+func (gs *customerService) GetBDLocation(ctx context.Context, req *model.BDLocationReq) ([]*model.BDLocation, int64, error) {
+	listOption := model.ListOptions{
+		Page:  req.Page,
+		Limit: req.Limit,
+		Sort:  bson.M{"name": -1},
+	}
+	list, count, err := gs.AddressRepo.GetBdLocations(ctx, req, &listOption)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return list, count, nil
+}

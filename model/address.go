@@ -103,4 +103,6 @@ type BDLocation struct {
 
 type BDLocationReq struct {
 	Parent string `json:"parent" bson:"parent"`
+	Page   int64  `json:"-" bson:"-"`
+	Limit  int64  `json:"-" bson:"-"`
 }

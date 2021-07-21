@@ -23,6 +23,7 @@ func (pr *publicRouter) Router() *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Mount("/customers", pr.customerRouter())
+	r.Get("/bd-area", pr.listBDArea)
 	return r
 }
 

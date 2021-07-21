@@ -571,6 +571,55 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/public/bd-area": {
+            "get": {
+                "description": "Get a list of BD areas under selected parent (slug value). No parent returns list of divisions. Division as parent will return districts and so on)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Common"
+                ],
+                "summary": "Fetch BD area presets (division, district, sub-district)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Default value: empty-string",
+                        "name": "parent",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Default value: 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Default value: 10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BDLocationListSuccessRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.EmptyListErrorRes"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/public/customers/forgot-password": {
             "post": {
                 "description": "Use username and captcha to send otp to customer's registered number",
@@ -983,6 +1032,29 @@ var doc = `{
                 }
             }
         },
+        "model.BDLocation": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "name_bn": {
+                    "type": "string"
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Customer": {
             "type": "object",
             "properties": {
@@ -1166,6 +1238,9 @@ var doc = `{
                     "type": "string",
                     "example": "success message"
                 },
+                "meta": {
+                    "$ref": "#/definitions/response.ListMeta"
+                },
                 "status": {
                     "type": "string",
                     "example": "OK"
@@ -1189,6 +1264,36 @@ var doc = `{
                 "message": {
                     "type": "string",
                     "example": "success message"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2006-01-02T15:04:05.000Z"
+                }
+            }
+        },
+        "response.BDLocationListSuccessRes": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.BDLocation"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "success message"
+                },
+                "meta": {
+                    "$ref": "#/definitions/response.ListMeta"
                 },
                 "status": {
                     "type": "string",
@@ -1300,6 +1405,23 @@ var doc = `{
                 "timestamp": {
                     "type": "string",
                     "example": "2006-01-02T15:04:05.000Z"
+                }
+            }
+        },
+        "response.ListMeta": {
+            "type": "object",
+            "properties": {
+                "Limit": {
+                    "type": "integer"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pages": {
+                    "type": "integer"
                 }
             }
         },
