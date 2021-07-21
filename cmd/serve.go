@@ -6,8 +6,8 @@ import (
 	"github.com/iamrz1/ab-auth/config"
 	infraCache "github.com/iamrz1/ab-auth/infra/cache"
 	infraMongo "github.com/iamrz1/ab-auth/infra/mongo"
-	"github.com/iamrz1/ab-auth/logger"
 	"github.com/iamrz1/ab-auth/service"
+	rLog "github.com/iamrz1/rest-log"
 	"github.com/spf13/cobra"
 	"log"
 	"net/http"
@@ -49,30 +49,31 @@ func StartServer() (*http.Server, error) {
 		log.Println("could not load one or more config")
 		return nil, err
 	}
-	//logStruct
+	//rLogger
 	verbose := false
 	if os.Getenv("VERBOSE") == "true" {
 		verbose = true
 	}
-	logStruct := logger.GetDefaultStructLogger(verbose)
+	rLogger := rLog.New(verbose)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 	defer cancel()
 
 	cfg := config.GetConfig()
 
 	gracefulTimeout := time.Second * time.Duration(cfg.GracefulTimeout)
-	db, err = infraMongo.New(ctx, cfg.DSN, cfg.Database, gracefulTimeout)
+
+	db, err = infraMongo.New(ctx, cfg.DSN, cfg.Database, gracefulTimeout, infraMongo.SetLogger(rLogger))
 	if err != nil {
 		return nil, err
 	}
 
 	cache = infraCache.NewCacheDB(cfg.CacheURL, "")
 
-	svc := service.SetupServiceConfig(cfg, db, cache, logStruct)
+	svc := service.SetupServiceConfig(cfg, db, cache, rLogger)
 
 	log.Println("db initialized")
 
-	server, err := api.Start(cfg, svc, logStruct)
+	server, err := api.Start(cfg, svc, rLogger)
 	if err != nil {
 		log.Println("err:", err)
 		return nil, err

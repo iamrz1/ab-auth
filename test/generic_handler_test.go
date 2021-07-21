@@ -18,8 +18,8 @@ var db *infraMongo.Mongo
 //		log.Println("could not load one or more config")
 //		return nil, err
 //	}
-//	//logStruct
-//	logStruct := logger.DefaultOutStructLogger
+//	//rLogger
+//	rLogger := logger.DefaultOutStructLogger
 //	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 //	defer cancel()
 //
@@ -35,8 +35,8 @@ var db *infraMongo.Mongo
 //	//cfg := config.getConfig()
 //
 //	//addr := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
-//	svc := service.SetupServiceConfig(cfg, db, logStruct)
-//	handler, err := api.SetupRouter(cfg, svc, logStruct)
+//	svc := service.SetupServiceConfig(cfg, db, rLogger)
+//	handler, err := api.SetupRouter(cfg, svc, rLogger)
 //	if err != nil {
 //		log.Println("cant setup router:", err)
 //		return nil, err

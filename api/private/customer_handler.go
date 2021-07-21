@@ -197,7 +197,7 @@ func (pr *privateRouter) addNewAddressHandler(w http.ResponseWriter, r *http.Req
 	var req = &model.AddressCreateReq{}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		pr.Log.Errorf("updateAddressHandler", "", err.Error())
+		pr.Log.Error("updateAddressHandler", "", err.Error())
 		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
 		return
 	}
@@ -235,7 +235,7 @@ func (pr *privateRouter) updateAddressHandler(w http.ResponseWriter, r *http.Req
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		pr.Log.Errorf("updateAddressHandler", "", err.Error())
+		pr.Log.Error("updateAddressHandler", "", err.Error())
 		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
 		return
 	}
@@ -245,7 +245,7 @@ func (pr *privateRouter) updateAddressHandler(w http.ResponseWriter, r *http.Req
 
 	res, err := pr.Services.CustomerService.UpdateAddress(r.Context(), req.ToAddress())
 	if err != nil {
-		pr.Log.Errorf("updateAddressHandler", "", err.Error())
+		pr.Log.Error("updateAddressHandler", "", err.Error())
 		utils.HandleListError(w, err)
 		return
 	}
@@ -275,7 +275,7 @@ func (pr *privateRouter) removeAddressHandler(w http.ResponseWriter, r *http.Req
 
 	res, err := pr.Services.CustomerService.RemoveAddress(r.Context(), req)
 	if err != nil {
-		pr.Log.Errorf("updateAddressHandler", "", err.Error())
+		pr.Log.Error("updateAddressHandler", "", err.Error())
 		utils.HandleListError(w, err)
 		return
 	}
@@ -302,7 +302,7 @@ func (pr *privateRouter) getAddressesHandler(w http.ResponseWriter, r *http.Requ
 
 	res, err := pr.Services.CustomerService.GetAddresses(r.Context(), username)
 	if err != nil {
-		pr.Log.Errorf("updateAddressHandler", "", err.Error())
+		pr.Log.Error("updateAddressHandler", "", err.Error())
 		utils.HandleListError(w, err)
 		return
 	}
@@ -330,7 +330,7 @@ func (pr *privateRouter) getPrimaryAddressHandler(w http.ResponseWriter, r *http
 
 	res, err := pr.Services.CustomerService.GetPrimaryAddress(r.Context(), username)
 	if err != nil {
-		pr.Log.Errorf("updateAddressHandler", "", err.Error())
+		pr.Log.Error("updateAddressHandler", "", err.Error())
 		utils.HandleListError(w, err)
 		return
 	}
@@ -359,7 +359,7 @@ func (pr *privateRouter) setPrimaryAddressHandler(w http.ResponseWriter, r *http
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		pr.Log.Errorf("updateAddressHandler", "", err.Error())
+		pr.Log.Error("updateAddressHandler", "", err.Error())
 		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
 		return
 	}
@@ -369,7 +369,7 @@ func (pr *privateRouter) setPrimaryAddressHandler(w http.ResponseWriter, r *http
 
 	res, err := pr.Services.CustomerService.SetPrimaryAddress(r.Context(), req.ToAddress())
 	if err != nil {
-		pr.Log.Errorf("updateAddressHandler", "", err.Error())
+		pr.Log.Error("updateAddressHandler", "", err.Error())
 		utils.HandleListError(w, err)
 		return
 	}

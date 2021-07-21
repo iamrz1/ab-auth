@@ -6,10 +6,10 @@ import (
 	"github.com/iamrz1/ab-auth/config"
 	rest_error "github.com/iamrz1/ab-auth/error"
 	"github.com/iamrz1/ab-auth/infra"
-	"github.com/iamrz1/ab-auth/logger"
 	"github.com/iamrz1/ab-auth/model"
 	"github.com/iamrz1/ab-auth/repo"
 	"github.com/iamrz1/ab-auth/utils"
+	rLog "github.com/iamrz1/rest-log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
@@ -22,11 +22,11 @@ type customerService struct {
 	CommonRepo   *repo.CommonRepo
 	CustomerRepo *repo.CustomerRepo
 	AddressRepo  *repo.AddressRepo
-	Log          logger.Logger
+	Log          rLog.Logger
 	Config       *config.AppConfig
 }
 
-func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.CustomerRepo, ar *repo.AddressRepo, logger logger.Logger) *customerService {
+func NewCustomerService(cfg *config.AppConfig, cm *repo.CommonRepo, cs *repo.CustomerRepo, ar *repo.AddressRepo, logger rLog.Logger) *customerService {
 	return &customerService{
 		CommonRepo:   cm,
 		CustomerRepo: cs,
@@ -63,7 +63,7 @@ func (gs *customerService) CreateCustomer(ctx context.Context, req *model.Custom
 
 	err = gs.CustomerRepo.HoldCustomerRegistrationInCache(otp, req)
 	if err != nil {
-		gs.Log.Errorf("CreateCustomer", "", err.Error())
+		gs.Log.Error("CreateCustomer", "", err.Error())
 		return "", err
 	}
 
@@ -86,7 +86,7 @@ func (gs *customerService) VerifyCustomerSignUp(ctx context.Context, req *model.
 
 	customerData, err := gs.CustomerRepo.GetCustomerRegistrationFromCache(req.Username, req.OTP)
 	if err != nil {
-		gs.Log.Errorf("VerifyCustomerSignUp", "", err.Error())
+		gs.Log.Error("VerifyCustomerSignUp", "", err.Error())
 		return rest_error.NewValidationError("", err)
 	}
 
@@ -104,7 +104,7 @@ func (gs *customerService) VerifyCustomerSignUp(ctx context.Context, req *model.
 
 	err = gs.CustomerRepo.CreateCustomer(ctx, c)
 	if err != nil {
-		gs.Log.Errorf("VerifyCustomerSignUp", "", err.Error())
+		gs.Log.Error("VerifyCustomerSignUp", "", err.Error())
 		return err
 	}
 
@@ -126,12 +126,12 @@ func (gs *customerService) Login(ctx context.Context, req *model.LoginReq) (*mod
 
 	g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: req.Username})
 	if err != nil {
-		gs.Log.Errorf("login", "", err.Error())
+		gs.Log.Error("login", "", err.Error())
 		return nil, rest_error.NewValidationError(incorrectMsg, nil)
 	}
 
 	if !utils.VerifyPassword(req.Password, g.Password) {
-		gs.Log.Errorf("login", "", "password mismatch")
+		gs.Log.Error("login", "", "password mismatch")
 		return nil, rest_error.NewValidationError(incorrectMsg, nil)
 	}
 
@@ -145,13 +145,13 @@ func (gs *customerService) Login(ctx context.Context, req *model.LoginReq) (*mod
 func (gs *customerService) GetShortProfile(ctx context.Context, req *model.Token) (*model.CustomerShort, error) {
 	claims, err := utils.VerifyToken(req.AccessToken, false)
 	if err != nil {
-		gs.Log.Errorf("GetShortProfile", "", err.Error())
+		gs.Log.Error("GetShortProfile", "", err.Error())
 		return nil, rest_error.NewGenericError(http.StatusUnauthorized, err.Error())
 	}
 
 	g, err := gs.CustomerRepo.GetCustomer(ctx, model.Customer{Username: claims.Username})
 	if err != nil {
-		gs.Log.Errorf("GetShortProfile", "", err.Error())
+		gs.Log.Error("GetShortProfile", "", err.Error())
 		return nil, rest_error.NewGenericError(http.StatusUnauthorized, "Invalid user")
 	}
 
@@ -191,7 +191,7 @@ func (gs *customerService) ListCustomers(ctx context.Context, req *model.Custome
 
 	Customers, err := gs.CustomerRepo.ListCustomers(ctx, selector, opts)
 	if err != nil {
-		gs.Log.Errorf("ListCustomers", "", err.Error())
+		gs.Log.Error("ListCustomers", "", err.Error())
 		return nil, 0, err
 	}
 
@@ -201,7 +201,7 @@ func (gs *customerService) ListCustomers(ctx context.Context, req *model.Custome
 
 	count, err := gs.CustomerRepo.CountCustomer(ctx, selector)
 	if err != nil {
-		gs.Log.Errorf("CountCustomer", "", err.Error())
+		gs.Log.Error("CountCustomer", "", err.Error())
 		return nil, 0, err
 	}
 
@@ -235,7 +235,7 @@ func (gs *customerService) UpdateCustomer(ctx context.Context, req *model.Custom
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
+		gs.Log.Error("updateCustomerProfile", "", err.Error())
 		return nil, err
 	}
 
@@ -268,7 +268,7 @@ func (gs *customerService) UpdatePassword(ctx context.Context, req *model.Update
 	}
 
 	if !utils.VerifyPassword(req.CurrentPassword, c.Password) {
-		gs.Log.Errorf("updatePassword", "", "password mismatch")
+		gs.Log.Error("updatePassword", "", "password mismatch")
 		return nil, rest_error.NewValidationError("Incorrect password", nil)
 	}
 
@@ -279,7 +279,7 @@ func (gs *customerService) UpdatePassword(ctx context.Context, req *model.Update
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
+		gs.Log.Error("updateCustomerProfile", "", err.Error())
 		return nil, err
 	}
 
@@ -304,7 +304,7 @@ func (gs *customerService) DeleteCustomer(ctx context.Context, delete *model.Cus
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
+		gs.Log.Error("updateCustomerProfile", "", err.Error())
 		return nil, err
 	}
 
@@ -331,7 +331,7 @@ func (gs *customerService) PurgeCustomer(ctx context.Context, delete *model.Cust
 
 	_, err = gs.CustomerRepo.PurgeOne(ctx, filter)
 	if err != nil {
-		gs.Log.Errorf("PurgeOne", "", err.Error())
+		gs.Log.Error("PurgeOne", "", err.Error())
 		return nil, err
 	}
 
@@ -394,7 +394,7 @@ func (gs *customerService) SetPassword(ctx context.Context, req *model.SetPasswo
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
+		gs.Log.Error("updateCustomerProfile", "", err.Error())
 		return err
 	}
 
@@ -432,7 +432,7 @@ func (gs *customerService) ChangePassword(ctx context.Context, req *model.SetPas
 
 	_, err = gs.CustomerRepo.UpdateCustomer(ctx, filter, updateDoc)
 	if err != nil {
-		gs.Log.Errorf("updateCustomerProfile", "", err.Error())
+		gs.Log.Error("updateCustomerProfile", "", err.Error())
 		return err
 	}
 

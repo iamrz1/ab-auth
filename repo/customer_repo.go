@@ -8,8 +8,8 @@ import (
 	rest_error "github.com/iamrz1/ab-auth/error"
 	"github.com/iamrz1/ab-auth/infra"
 	infraCache "github.com/iamrz1/ab-auth/infra/cache"
-	"github.com/iamrz1/ab-auth/logger"
 	"github.com/iamrz1/ab-auth/model"
+	rLog "github.com/iamrz1/rest-log"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"net/http"
@@ -20,10 +20,10 @@ type CustomerRepo struct {
 	DB    infra.DB
 	Cache *infraCache.Redis
 	Table string
-	Log   logger.Logger
+	Log   rLog.Logger
 }
 
-func NewCustomerRepo(db infra.DB, table string, cache *infraCache.Redis, log logger.Logger) *CustomerRepo {
+func NewCustomerRepo(db infra.DB, table string, cache *infraCache.Redis, log rLog.Logger) *CustomerRepo {
 	return &CustomerRepo{
 		DB:    db,
 		Cache: cache,
@@ -39,14 +39,14 @@ func (pr *CustomerRepo) HoldCustomerRegistrationInCache(otp string, doc *model.C
 
 	data, err := json.Marshal(doc)
 	if err != nil {
-		pr.Log.Errorf("HoldCustomerRegistrationInCache", "", err.Error())
+		pr.Log.Error("HoldCustomerRegistrationInCache", "", err.Error())
 		return err
 	}
 
 	scmd := pr.Cache.Client.Set(fmt.Sprintf("%s_%s", doc.Username, otp), data, time.Minute*6)
 	err = scmd.Err()
 	if err != nil {
-		pr.Log.Errorf("HoldCustomerRegistrationInCache", "", err.Error())
+		pr.Log.Error("HoldCustomerRegistrationInCache", "", err.Error())
 		return err
 	}
 
@@ -58,7 +58,7 @@ func (pr *CustomerRepo) GetCustomerRegistrationFromCache(username, otp string) (
 	scmd := pr.Cache.Client.Get(fmt.Sprintf("%s_%s", username, otp))
 	err := scmd.Err()
 	if err != nil {
-		pr.Log.Errorf("GetCustomerRegistrationFromCache", "", err.Error())
+		pr.Log.Error("GetCustomerRegistrationFromCache", "", err.Error())
 		if err == redis.Nil {
 			return nil, fmt.Errorf("%s", "OTP expired")
 		}
@@ -69,7 +69,7 @@ func (pr *CustomerRepo) GetCustomerRegistrationFromCache(username, otp string) (
 
 	err = json.Unmarshal(b, &res)
 	if err != nil {
-		pr.Log.Errorf("GetCustomerRegistrationFromCache", "", err.Error())
+		pr.Log.Error("GetCustomerRegistrationFromCache", "", err.Error())
 		return nil, err
 	}
 
@@ -82,7 +82,7 @@ func (pr *CustomerRepo) CreateCustomer(ctx context.Context, doc *model.Customer)
 	}
 	err := pr.DB.Insert(ctx, pr.Table, doc)
 	if err != nil {
-		pr.Log.Errorf("CreateCustomer", "", err.Error())
+		pr.Log.Error("CreateCustomer", "", err.Error())
 		return err
 	}
 
@@ -93,7 +93,7 @@ func (pr *CustomerRepo) GetCustomer(ctx context.Context, selector interface{}) (
 	res := model.Customer{}
 	err := pr.DB.FindOne(ctx, pr.Table, selector, &res)
 	if err != nil {
-		pr.Log.Errorf("GetCustomer", "", err.Error())
+		pr.Log.Error("GetCustomer", "", err.Error())
 		return nil, err
 	}
 
@@ -110,7 +110,7 @@ func (pr *CustomerRepo) ListCustomers(ctx context.Context, selector interface{},
 	}
 	err := pr.DB.List(ctx, pr.Table, selector, listOptions.Page, listOptions.Limit, &res, listOptions.Sort)
 	if err != nil {
-		pr.Log.Errorf("ListCustomers", "", err.Error())
+		pr.Log.Error("ListCustomers", "", err.Error())
 		return nil, err
 	}
 
@@ -124,7 +124,7 @@ func (pr *CustomerRepo) UpdateCustomer(ctx context.Context, filter, doc *model.C
 	}
 	matched, err := pr.DB.Update(ctx, pr.Table, filter, doc)
 	if err != nil {
-		pr.Log.Errorf("updateCustomerProfile", "", err.Error())
+		pr.Log.Error("updateCustomerProfile", "", err.Error())
 		return 0, err
 	}
 
@@ -134,7 +134,7 @@ func (pr *CustomerRepo) UpdateCustomer(ctx context.Context, filter, doc *model.C
 func (pr *CustomerRepo) CountCustomer(ctx context.Context, selector interface{}) (int64, error) {
 	n, err := pr.DB.FindAndCount(ctx, pr.Table, selector)
 	if err != nil {
-		pr.Log.Errorf("CountCustomer", "", err.Error())
+		pr.Log.Error("CountCustomer", "", err.Error())
 		return 0, err
 	}
 
@@ -144,7 +144,7 @@ func (pr *CustomerRepo) CountCustomer(ctx context.Context, selector interface{})
 func (pr *CustomerRepo) PurgeOne(ctx context.Context, filter interface{}) (int64, error) {
 	purged, err := pr.DB.DeleteOne(ctx, pr.Table, filter)
 	if err != nil {
-		pr.Log.Errorf("PurgeOne", "", err.Error())
+		pr.Log.Error("PurgeOne", "", err.Error())
 		return 0, err
 	}
 

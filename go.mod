@@ -12,14 +12,14 @@ require (
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.1.2
+	github.com/iamrz1/rest-log v0.1.0
 	github.com/joho/godotenv v1.3.0
 	github.com/json-iterator/go v1.1.9
 	github.com/klauspost/compress v1.11.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/meehow/go-django-hashers v0.0.0-20171231135116-5e5d6afe52db
 	github.com/onsi/gomega v1.14.0 // indirect
-	github.com/rs/zerolog v1.20.0
-	github.com/satori/go.uuid v1.2.0
+	github.com/rs/zerolog v1.23.0
 	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/http-swagger v1.0.0
@@ -29,7 +29,6 @@ require (
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
 	golang.org/x/tools v0.1.4 // indirect
-	google.golang.org/grpc v1.36.0
 	gopkg.in/validator.v2 v2.0.0-20210331031555-b37d688a7fb0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

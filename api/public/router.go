@@ -2,19 +2,19 @@ package public
 
 import (
 	"github.com/go-chi/chi"
-	"github.com/iamrz1/ab-auth/logger"
 	"github.com/iamrz1/ab-auth/service"
+	rLog "github.com/iamrz1/rest-log"
 )
 
 type publicRouter struct {
 	Services *service.Config
-	Log      logger.Logger
+	Log      rLog.Logger
 }
 
-func NewPublicRouter(svc *service.Config, logStruct logger.Logger) *publicRouter {
+func NewPublicRouter(svc *service.Config, rLogger rLog.Logger) *publicRouter {
 	return &publicRouter{
 		Services: svc,
-		Log:      logStruct,
+		Log:      rLogger,
 	}
 }
 

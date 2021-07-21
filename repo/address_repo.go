@@ -2,10 +2,11 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	rest_error "github.com/iamrz1/ab-auth/error"
 	"github.com/iamrz1/ab-auth/infra"
-	"github.com/iamrz1/ab-auth/logger"
 	"github.com/iamrz1/ab-auth/model"
+	rLog "github.com/iamrz1/rest-log"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"net/http"
@@ -15,22 +16,22 @@ type AddressRepo struct {
 	DB           infra.DB
 	AddressTable string
 	BDGeoTable   string
-	Log          logger.Logger
+	Log          rLog.Logger
 }
 
-func NewAddressRepo(db infra.DB, addressTable, lookupTable string, log logger.Logger) *AddressRepo {
+func NewAddressRepo(db infra.DB, addressTable, bdLocationTable string, log rLog.Logger) *AddressRepo {
 	return &AddressRepo{
 		DB:           db,
 		Log:          log,
 		AddressTable: addressTable,
-		BDGeoTable:   lookupTable,
+		BDGeoTable:   bdLocationTable,
 	}
 }
 
 func (ar *AddressRepo) AddAddress(ctx context.Context, address *model.Address) error {
 	err := ar.DB.Insert(ctx, ar.AddressTable, address)
 	if err != nil {
-		ar.Log.Errorf("GetAddresses", "", "insert err: %s", err.Error())
+		ar.Log.Error("GetAddresses", "", fmt.Sprintf("insert err: %s", err.Error()))
 		return err
 	}
 
@@ -50,7 +51,7 @@ func (ar *AddressRepo) GetAddress(ctx context.Context, filter interface{}) (*mod
 func (ar *AddressRepo) GetAddressCount(ctx context.Context, filter interface{}) (int64, error) {
 	n, err := ar.DB.FindAndCount(ctx, ar.AddressTable, filter)
 	if err != nil {
-		ar.Log.Errorf("CountCustomer", "", err.Error())
+		ar.Log.Error("CountCustomer", "", err.Error())
 		return 0, err
 	}
 
@@ -67,7 +68,7 @@ func (ar *AddressRepo) GetAddresses(ctx context.Context, filter interface{}, lis
 	}
 	err := ar.DB.List(ctx, ar.AddressTable, filter, listOptions.Page, listOptions.Limit, &res, listOptions.Sort)
 	if err != nil {
-		ar.Log.Errorf("GetAddresses", "", err.Error())
+		ar.Log.Error("GetAddresses", "", err.Error())
 		return nil, err
 	}
 
@@ -81,7 +82,7 @@ func (ar *AddressRepo) UpdateAddress(ctx context.Context, filter interface{}, do
 	}
 	matched, err := ar.DB.Update(ctx, ar.AddressTable, filter, doc)
 	if err != nil {
-		ar.Log.Errorf("updateCustomerProfile", "", err.Error())
+		ar.Log.Error("updateCustomerProfile", "", err.Error())
 		return 0, err
 	}
 
@@ -91,7 +92,7 @@ func (ar *AddressRepo) UpdateAddress(ctx context.Context, filter interface{}, do
 func (ar *AddressRepo) PurgeAddress(ctx context.Context, filter interface{}) (int64, error) {
 	purged, err := ar.DB.DeleteOne(ctx, ar.AddressTable, filter)
 	if err != nil {
-		ar.Log.Errorf("PurgeOne", "", err.Error())
+		ar.Log.Error("PurgeOne", "", err.Error())
 		return 0, err
 	}
 
@@ -108,7 +109,7 @@ func (ar *AddressRepo) GetBdLocations(ctx context.Context, filter interface{}, l
 	}
 	err := ar.DB.List(ctx, ar.BDGeoTable, filter, listOptions.Page, listOptions.Limit, &res, listOptions.Sort)
 	if err != nil {
-		ar.Log.Errorf("GetAddresses", "", err.Error())
+		ar.Log.Error("GetAddresses", "", err.Error())
 		return nil, err
 	}
 

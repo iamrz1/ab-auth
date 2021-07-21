@@ -5,8 +5,8 @@ import (
 	"github.com/go-redis/redis"
 	"github.com/iamrz1/ab-auth/infra"
 	infraCache "github.com/iamrz1/ab-auth/infra/cache"
-	"github.com/iamrz1/ab-auth/logger"
 	"github.com/iamrz1/ab-auth/utils"
+	rLog "github.com/iamrz1/rest-log"
 	"log"
 	"time"
 )
@@ -14,10 +14,10 @@ import (
 type CommonRepo struct {
 	DB    infra.DB
 	Cache *infraCache.Redis
-	Log   logger.Logger
+	Log   rLog.Logger
 }
 
-func NewCommonRepo(db infra.DB, cache *infraCache.Redis, log logger.Logger) *CommonRepo {
+func NewCommonRepo(db infra.DB, cache *infraCache.Redis, log rLog.Logger) *CommonRepo {
 	return &CommonRepo{
 		DB:    db,
 		Cache: cache,
@@ -77,7 +77,7 @@ func (cmr *CommonRepo) EnsureUsageLimit(key string, limit, durationSec int) bool
 	scmd := cmr.Cache.Client.Get(key)
 	if scmd.Err() != nil {
 		if scmd.Err() != redis.Nil {
-			cmr.Log.Errorf("EnsureUsageLimit", "", scmd.Err().Error())
+			cmr.Log.Error("EnsureUsageLimit", "", scmd.Err().Error())
 			return false
 		} else {
 			cmr.Cache.Client.Set(key, 1, time.Second*time.Duration(durationSec))
@@ -86,7 +86,7 @@ func (cmr *CommonRepo) EnsureUsageLimit(key string, limit, durationSec int) bool
 	} else {
 		n, err := scmd.Int()
 		if err != nil {
-			cmr.Log.Errorf("EnsureUsageLimit", "", scmd.Err().Error())
+			cmr.Log.Error("EnsureUsageLimit", "", scmd.Err().Error())
 			return false
 		}
 		usedLimit = n

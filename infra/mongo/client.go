@@ -3,11 +3,12 @@ package mongo
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	rLog "github.com/iamrz1/rest-log"
 	"log"
 	"time"
 
 	"github.com/iamrz1/ab-auth/infra"
-	"github.com/iamrz1/ab-auth/logger"
 	"github.com/iamrz1/ab-auth/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -21,7 +22,7 @@ type Mongo struct {
 	*mongo.Client
 	database *mongo.Database
 	name     string
-	lgr      logger.Logger
+	lgr      rLog.Logger
 }
 
 // New returns a new instance of mongodb using session s
@@ -76,7 +77,7 @@ func (f OptionFunc) apply(db *Mongo) {
 }
 
 // SetLogger sets logger
-func SetLogger(lgr logger.Logger) Option {
+func SetLogger(lgr rLog.Logger) Option {
 	return OptionFunc(func(db *Mongo) {
 		db.lgr = lgr
 	})
@@ -92,7 +93,7 @@ func (d *Mongo) Close(ctx context.Context) error {
 
 // EnsureIndices creates indices for collection col
 func (d *Mongo) EnsureIndices(ctx context.Context, collection string, inds []infra.DbIndex) error {
-	d.lgr.Infof("EnsureIndices", "", "creating indices for", collection)
+	d.lgr.Info("EnsureIndices", "", fmt.Sprint("creating indices for", collection))
 	db := d.database
 	indexModels := []mongo.IndexModel{}
 	for _, ind := range inds {
@@ -127,7 +128,7 @@ func (d *Mongo) EnsureIndices(ctx context.Context, collection string, inds []inf
 
 // DropIndices drops indices from collection col
 func (d *Mongo) DropIndices(ctx context.Context, collection string, inds []infra.DbIndex) error {
-	d.lgr.Infof("DropIndices", "", "dropping indices from", collection)
+	d.lgr.Info("DropIndices", "", fmt.Sprint("dropping indices from", collection))
 	if _, err := d.database.Collection(collection).Indexes().DropAll(ctx); err != nil {
 		return err
 	}
@@ -136,7 +137,7 @@ func (d *Mongo) DropIndices(ctx context.Context, collection string, inds []infra
 
 // Insert inserts doc into collection
 func (d *Mongo) Insert(ctx context.Context, collection string, doc interface{}) error {
-	d.lgr.Infof("Insert", "", "insert into", collection)
+	d.lgr.Info("Insert", "", fmt.Sprint("insert into", collection))
 	if _, err := d.database.Collection(collection).InsertOne(ctx, doc); err != nil {
 		return err
 	}
@@ -145,7 +146,7 @@ func (d *Mongo) Insert(ctx context.Context, collection string, doc interface{}) 
 
 // Update updates existing doc in the collection
 func (d *Mongo) Update(ctx context.Context, collection string, filter, doc interface{}) (int64, error) {
-	d.lgr.Infof("Update", "", "update in", collection)
+	d.lgr.Info("Update", "", fmt.Sprint("update in", collection))
 	update := bson.M{"$set": doc}
 	res, err := d.database.Collection(collection).UpdateOne(ctx, filter, update)
 	if err != nil {
@@ -157,7 +158,7 @@ func (d *Mongo) Update(ctx context.Context, collection string, filter, doc inter
 
 // InsertMany inserts docs into collection
 func (d *Mongo) InsertMany(ctx context.Context, collection string, docs []interface{}) error {
-	d.lgr.Infof("InsertMany", "", "insert many into", collection)
+	d.lgr.Info("InsertMany", "", fmt.Sprint("insert many into", collection))
 	if _, err := d.database.Collection(collection).InsertMany(ctx, docs); err != nil {
 		return err
 	}
@@ -166,7 +167,7 @@ func (d *Mongo) InsertMany(ctx context.Context, collection string, docs []interf
 
 // FindOne finds a doc by query
 func (d *Mongo) FindOne(ctx context.Context, collection string, q interface{}, v interface{}, sort ...interface{}) error {
-	d.lgr.Infof("FindOne", "", "find", q, "from", collection)
+	d.lgr.Info("FindOne", "", fmt.Sprintf("find %v from %v", q, collection))
 	findOneOpts := options.FindOne()
 	if len(sort) > 0 {
 		findOneOpts = findOneOpts.SetSort(sort[0])
@@ -183,7 +184,7 @@ func (d *Mongo) FindOne(ctx context.Context, collection string, q interface{}, v
 
 // Count counts documents
 func (d *Mongo) Count(ctx context.Context, collection string, filter interface{}) (int64, error) {
-	d.lgr.Infof("Count", "", "count", filter, "from", collection)
+	d.lgr.Info("Count", "", fmt.Sprint("count", filter, "from", collection))
 
 	n, err := d.database.Collection(collection).CountDocuments(ctx, filter)
 	if err != nil {
@@ -194,7 +195,7 @@ func (d *Mongo) Count(ctx context.Context, collection string, filter interface{}
 
 // FindAndCount counts from found results
 func (d *Mongo) FindAndCount(ctx context.Context, collection string, filter interface{}) (int64, error) {
-	d.lgr.Infof("FindAndCount", "", "count", filter, "from", collection)
+	d.lgr.Info("FindAndCount", "", fmt.Sprint("count", filter, "from", collection))
 
 	cursor, err := d.database.Collection(collection).Find(ctx, filter)
 	if err != nil {
@@ -208,7 +209,7 @@ func (d *Mongo) FindAndCount(ctx context.Context, collection string, filter inte
 
 // List finds list of docs that matches query with skip and limit
 func (d *Mongo) List(ctx context.Context, collection string, filter interface{}, page, limit int64, v interface{}, sort ...interface{}) error {
-	d.lgr.Infof("List", "", "list", filter, "from", collection)
+	d.lgr.Info("List", "", fmt.Sprint("list", filter, "from", collection))
 	skip := (page - 1) * limit
 	findOpts := options.Find().SetSkip(skip).SetLimit(limit)
 	if len(sort) > 0 {
@@ -229,7 +230,7 @@ func (d *Mongo) List(ctx context.Context, collection string, filter interface{},
 
 // Aggregate runs aggregation q on docs and store the result on v
 func (d *Mongo) Aggregate(ctx context.Context, collection string, q interface{}, v interface{}) error {
-	d.lgr.Infof("Aggregate", "", "aggregate", q, "from", collection)
+	d.lgr.Info("Aggregate", "", fmt.Sprint("aggregate", q, "from", collection))
 	cursor, err := d.database.Collection(collection).Aggregate(ctx, q)
 	if err != nil {
 		return err
@@ -241,7 +242,7 @@ func (d *Mongo) Aggregate(ctx context.Context, collection string, q interface{},
 }
 
 func (d *Mongo) AggregateWithDiskUse(ctx context.Context, collection string, q []infra.DbQuery, v interface{}) error {
-	d.lgr.Infof("AggregateWithDiskUse", "", "aggregate", q, "from", collection)
+	d.lgr.Info("AggregateWithDiskUse", "", fmt.Sprint("aggregate", q, "from", collection))
 	opt := options.Aggregate().SetAllowDiskUse(true)
 	cursor, err := d.database.Collection(collection).Aggregate(ctx, q, opt)
 	if err != nil {
@@ -254,7 +255,7 @@ func (d *Mongo) AggregateWithDiskUse(ctx context.Context, collection string, q [
 }
 
 func (d *Mongo) Distinct(ctx context.Context, collection, field string, q infra.DbQuery, v interface{}) error {
-	d.lgr.Infof("Distinct", "", "aggregate", q, "from", collection)
+	d.lgr.Info("Distinct", "", fmt.Sprint("aggregate", q, "from", collection))
 	interfaces, err := d.database.Collection(collection).Distinct(ctx, field, q)
 	if err != nil {
 		return err
