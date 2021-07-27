@@ -357,13 +357,6 @@ func (pr *privateRouter) setPrimaryAddressHandler(w http.ResponseWriter, r *http
 		utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Missing username"))
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		pr.Log.Error("updateAddressHandler", "", err.Error())
-		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
-		return
-	}
-
 	req.ID = id
 	req.Username = username
 

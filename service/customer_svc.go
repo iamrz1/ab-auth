@@ -477,7 +477,7 @@ func (gs *customerService) UpdateAddress(ctx context.Context, req *model.Address
 		return nil, rest_error.NewValidationError("Invalid address ID", nil)
 	}
 	req.ID = ""
-	filter := bson.E{Key: "_id", Value: objID}
+	filter := bson.M{"_id": objID, "username": req.Username}
 	n, err := gs.AddressRepo.UpdateAddress(ctx, filter, req)
 	if err != nil {
 		return nil, err
@@ -578,23 +578,30 @@ func (gs *customerService) SetPrimaryAddress(ctx context.Context, req *model.Add
 		return list, nil
 	}
 
+	log.Println("incoming primary:", req.ID)
+	log.Println("current primary:", oldPrimaryID)
+
 	objID, err := primitive.ObjectIDFromHex(req.ID)
 	if err != nil {
 		return nil, rest_error.NewValidationError("Invalid address ID", nil)
 	}
-	filter := bson.E{Key: "_id", Value: objID}
-	_, err = gs.AddressRepo.UpdateAddress(ctx, filter, &model.Address{IsPrimary: utils.BoolP(true)})
+	filter := bson.M{"_id": objID}
+	var count int64
+	count, err = gs.AddressRepo.UpdateAddress(ctx, filter, &model.Address{IsPrimary: utils.BoolP(true)})
 	if err != nil {
 		return nil, err
 	}
 
+	log.Println("cont1:", count)
+
 	if oldPrimaryID != "" {
 		objID, err = primitive.ObjectIDFromHex(oldPrimaryID)
-		filter = bson.E{Key: "_id", Value: objID}
-		_, err = gs.AddressRepo.UpdateAddress(ctx, filter, &model.Address{IsPrimary: utils.BoolP(false)})
+		filter = bson.M{"_id": objID}
+		count, err = gs.AddressRepo.UpdateAddress(ctx, filter, &model.Address{IsPrimary: utils.BoolP(false)})
 		if err != nil {
 			return nil, err
 		}
+		log.Println("cont1:", count)
 	}
 
 	return list, nil
