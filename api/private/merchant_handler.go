@@ -13,28 +13,28 @@ import (
 	"net/http"
 )
 
-func newCustomerRouter(svc *service.Config, rLogger rLog.Logger) *customerRouter {
-	return &customerRouter{
+func newMerchantRouter(svc *service.Config, rLogger rLog.Logger) *merchantRouter {
+	return &merchantRouter{
 		Services: svc,
 		Log:      rLogger,
 	}
 }
 
-type customerRouter struct {
+type merchantRouter struct {
 	Services *service.Config
 	Log      rLog.Logger
 }
 
-func (pr *privateRouter) customerRouter() *chi.Mux {
+func (pr *privateRouter) merchantRouter() *chi.Mux {
 	r := chi.NewRouter()
 
-	cr := newCustomerRouter(pr.Services, pr.Log)
+	cr := newMerchantRouter(pr.Services, pr.Log)
 
-	r.With(middleware.AuthenticatedCustomerOnly).Get("/profile", cr.getCustomerProfile)
-	r.With(middleware.AuthenticatedCustomerOnly).Patch("/profile", cr.updateCustomerProfile)
-	r.With(middleware.AuthenticatedCustomerOnly).Get("/verify-token", cr.verifyAccessToken)
+	r.With(middleware.AuthenticatedMerchantOnly).Get("/profile", cr.getMerchantProfile)
+	r.With(middleware.AuthenticatedMerchantOnly).Patch("/profile", cr.updateMerchantProfile)
+	r.With(middleware.AuthenticatedMerchantOnly).Get("/verify-token", cr.verifyAccessToken)
 	r.With(middleware.JWTTokenOnly).Get("/refresh-token", cr.refreshToken)
-	r.With(middleware.AuthenticatedCustomerOnly).Put("/password", cr.updatePassword)
+	r.With(middleware.AuthenticatedMerchantOnly).Put("/password", cr.updatePassword)
 
 	r.Mount("/address", pr.addressRouter())
 
@@ -42,39 +42,39 @@ func (pr *privateRouter) customerRouter() *chi.Mux {
 }
 
 // verifyAccessToken godoc
-// @Summary Verify customer's access token
+// @Summary Verify merchant's access token
 // @Description verifyAccessToken lets apps to verify that a provided token is in-fact valid
-// @Tags Customers
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
 // @Param authorization header string true "Value of access token"
 // @Success 200 {object} response.EmptySuccessRes
 // @Failure 401 {object} response.EmptyErrorRes
-// @Router /api/v1/private/customers/verify-token [get]
-func (pr *customerRouter) verifyAccessToken(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/private/merchants/verify-token [get]
+func (pr *merchantRouter) verifyAccessToken(w http.ResponseWriter, r *http.Request) {
 	utils.ServeJSONObject(w, http.StatusOK, "Token verified", nil, nil, true)
 }
 
-// getCustomerProfile godoc
+// getMerchantProfile godoc
 // @Summary Get basic profile
-// @Description Returns customer's profile using access token
-// @Tags Customers
+// @Description Returns merchant's profile using access token
+// @Tags Merchants
 // @Produce  json
 // @Param authorization header string true "Set access token here"
-// @Success 200 {object} response.CustomerSuccessRes
+// @Success 200 {object} response.MerchantSuccessRes
 // @Failure 400 {object} response.EmptyErrorRes "Invalid request body, or missing required fields."
 // @Failure 401 {object} response.EmptyErrorRes "Unauthorized access attempt."
 // @Failure 500 {object} response.EmptyErrorRes "API sever or db unreachable."
-// @Router /api/v1/private/customers/profile [get]
-func (pr *customerRouter) getCustomerProfile(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/private/merchants/profile [get]
+func (pr *merchantRouter) getMerchantProfile(w http.ResponseWriter, r *http.Request) {
 	username := r.Header.Get(utils.UsernameKey)
 	if username == "" {
 		utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Missing username"))
 	}
 
-	req := &model.Customer{Username: username}
+	req := &model.Merchant{Username: username}
 
-	data, err := pr.Services.CustomerService.GetCustomer(r.Context(), req)
+	data, err := pr.Services.MerchantService.GetMerchant(r.Context(), req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
@@ -83,26 +83,26 @@ func (pr *customerRouter) getCustomerProfile(w http.ResponseWriter, r *http.Requ
 	utils.ServeJSONObject(w, http.StatusOK, "Successful", &data, nil, true)
 }
 
-// updateCustomerProfile godoc
+// updateMerchantProfile godoc
 // @Summary Update basic profile
-// @Description Update customer's basic profile info
-// @Tags Customers
+// @Description Update merchant's basic profile info
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
 // @Param authorization header string true "Set access token here"
-// @Param  Body body model.CustomerProfileUpdateReq true "Some fields are mandatory"
-// @Success 200 {object} response.CustomerSuccessRes
+// @Param  Body body model.MerchantProfileUpdateReq true "Some fields are mandatory"
+// @Success 200 {object} response.MerchantSuccessRes
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
-// @Router /api/v1/private/customers/profile [patch]
-func (pr *customerRouter) updateCustomerProfile(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/private/merchants/profile [patch]
+func (pr *merchantRouter) updateMerchantProfile(w http.ResponseWriter, r *http.Request) {
 	username := r.Header.Get(utils.UsernameKey)
 	if username == "" {
 		utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Missing username"))
 	}
 
-	req := model.CustomerProfileUpdateReq{}
+	req := model.MerchantProfileUpdateReq{}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		utils.HandleObjectError(w, rest_error.NewValidationError("Invalid JSON", err))
@@ -116,7 +116,7 @@ func (pr *customerRouter) updateCustomerProfile(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	data, err := pr.Services.CustomerService.UpdateCustomer(r.Context(), &req)
+	data, err := pr.Services.MerchantService.UpdateMerchant(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
@@ -126,16 +126,16 @@ func (pr *customerRouter) updateCustomerProfile(w http.ResponseWriter, r *http.R
 }
 
 // refreshToken godoc
-// @Summary Refresh customer's access token
+// @Summary Refresh merchant's access token
 // @Description Generate new access and refresh tokens using current refresh token
-// @Tags Customers
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
 // @Param authorization header string true "Value of refresh token"
 // @Success 200 {object} response.TokenSuccessRes
 // @Failure 401 {object} response.EmptyErrorRes
-// @Router /api/v1/private/customers/refresh-token [get]
-func (pr *customerRouter) refreshToken(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/private/merchants/refresh-token [get]
+func (pr *merchantRouter) refreshToken(w http.ResponseWriter, r *http.Request) {
 	jwtTkn := r.Header.Get(utils.AuthorizationKey)
 	if jwtTkn == "" {
 		utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Missing refresh token"))
@@ -148,7 +148,7 @@ func (pr *customerRouter) refreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cus, err := pr.Services.CustomerService.GetCustomer(r.Context(), &model.Customer{Username: claims.Username})
+	cus, err := pr.Services.MerchantService.GetMerchant(r.Context(), &model.Merchant{Username: claims.Username})
 	if err != nil {
 		utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, err.Error()))
 		return
@@ -159,7 +159,7 @@ func (pr *customerRouter) refreshToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	access, refresh := utils.GenerateTokens(cus.Username, "", "customer")
+	access, refresh := utils.GenerateTokens(cus.Username, "", "merchant")
 	token := model.Token{AccessToken: access, RefreshToken: refresh}
 
 	utils.ServeJSONObject(w, http.StatusOK, "Token refreshed", &token, nil, true)
@@ -167,18 +167,18 @@ func (pr *customerRouter) refreshToken(w http.ResponseWriter, r *http.Request) {
 
 // updatePassword godoc
 // @Summary Update existing password
-// @Description Update to a new password using customer's existing password
-// @Tags Customers
+// @Description Update to a new password using merchant's existing password
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
 // @Param authorization header string true "Set access token here"
 // @Param  Body body model.UpdatePasswordReq true "Some fields are mandatory"
-// @Success 200 {object} response.CustomerSuccessRes
+// @Success 200 {object} response.MerchantSuccessRes
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
-// @Router /api/v1/private/customers/password [put]
-func (pr *customerRouter) updatePassword(w http.ResponseWriter, r *http.Request) {
+// @Router /api/v1/private/merchants/password [put]
+func (pr *merchantRouter) updatePassword(w http.ResponseWriter, r *http.Request) {
 	username := r.Header.Get(utils.UsernameKey)
 	if username == "" {
 		utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Missing username"))
@@ -198,7 +198,7 @@ func (pr *customerRouter) updatePassword(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	data, err := pr.Services.CustomerService.UpdatePassword(r.Context(), &req)
+	data, err := pr.Services.MerchantService.UpdatePassword(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
@@ -207,16 +207,16 @@ func (pr *customerRouter) updatePassword(w http.ResponseWriter, r *http.Request)
 	utils.ServeJSONObject(w, http.StatusOK, "Password updated", &data, nil, true)
 }
 
-func (pr *customerRouter) purgeCustomer(w http.ResponseWriter, r *http.Request) {
+func (pr *merchantRouter) purgeMerchant(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 
-	req := model.CustomerDeleteReq{Username: username}
+	req := model.MerchantDeleteReq{Username: username}
 
-	data, err := pr.Services.CustomerService.PurgeCustomer(r.Context(), &req)
+	data, err := pr.Services.MerchantService.PurgeMerchant(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
 	}
 
-	utils.ServeJSONObject(w, http.StatusOK, "Purged customer successfully", &data, nil, true)
+	utils.ServeJSONObject(w, http.StatusOK, "Purged merchant successfully", &data, nil, true)
 }

@@ -12,21 +12,21 @@ import (
 	"net/http"
 )
 
-func newCustomerRouter(svc *service.Config, rLogger rLog.Logger) *customerRouter {
-	return &customerRouter{
+func newMerchantRouter(svc *service.Config, rLogger rLog.Logger) *merchantRouter {
+	return &merchantRouter{
 		Services: svc,
 		Log:      rLogger,
 	}
 }
 
-type customerRouter struct {
+type merchantRouter struct {
 	Services *service.Config
 	Log      rLog.Logger
 }
 
-func (pr *publicRouter) customerRouter() *chi.Mux {
+func (pr *publicRouter) merchantRouter() *chi.Mux {
 	r := chi.NewRouter()
-	cr := newCustomerRouter(pr.Services, pr.Log)
+	cr := newMerchantRouter(pr.Services, pr.Log)
 
 	r.Post("/signup", cr.signup)
 	r.Post("/verify-signup", cr.verifySignUp)
@@ -39,17 +39,17 @@ func (pr *publicRouter) customerRouter() *chi.Mux {
 // signup godoc
 // @Summary Signup a new customer
 // @Description Signup a new customer for a valid non-existing phone number
-// @Tags Customers
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
-// @Param  Body body model.CustomerSignupReq true "All fields are mandatory"
+// @Param  Body body model.MerchantSignupReq true "All fields are mandatory"
 // @Success 201 {object} response.EmptySuccessRes
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/signup [post]
-func (pr *customerRouter) signup(w http.ResponseWriter, r *http.Request) {
-	req := model.CustomerSignupReq{}
+func (pr *merchantRouter) signup(w http.ResponseWriter, r *http.Request) {
+	req := model.MerchantSignupReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -62,7 +62,7 @@ func (pr *customerRouter) signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if pr.Services.CustomerService.Config.Environment == utils.EnvProduction || req.CaptchaValue != utils.DefaultCaptchaValue {
+	if pr.Services.MerchantService.Config.Environment == utils.EnvProduction || req.CaptchaValue != utils.DefaultCaptchaValue {
 		_, err = utils.VerifyCaptcha(req.CaptchaID, req.CaptchaValue)
 		if err != nil {
 			utils.HandleObjectError(w, rest_error.NewValidationError("", err))
@@ -70,7 +70,7 @@ func (pr *customerRouter) signup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	otp, err := pr.Services.CustomerService.CreateCustomer(r.Context(), &req)
+	otp, err := pr.Services.MerchantService.CreateMerchant(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
@@ -78,7 +78,7 @@ func (pr *customerRouter) signup(w http.ResponseWriter, r *http.Request) {
 
 	var meta map[string]string
 
-	if pr.Services.CustomerService.Config.Environment != utils.EnvProduction {
+	if pr.Services.MerchantService.Config.Environment != utils.EnvProduction {
 		meta = map[string]string{"otp": otp}
 	}
 
@@ -88,17 +88,17 @@ func (pr *customerRouter) signup(w http.ResponseWriter, r *http.Request) {
 // verifySignUp godoc
 // @Summary Verify a new customer using otp
 // @Description Use customer defined otp to match it with existing reference in cache to verify a signup
-// @Tags Customers
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
-// @Param  Body body model.CustomerSignupVerificationReq true "All fields are mandatory"
+// @Param  Body body model.MerchantSignupVerificationReq true "All fields are mandatory"
 // @Success 200 {object} response.EmptySuccessRes
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/verify-signup [post]
-func (pr *customerRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
-	req := model.CustomerSignupVerificationReq{}
+func (pr *merchantRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
+	req := model.MerchantSignupVerificationReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -111,7 +111,7 @@ func (pr *customerRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = pr.Services.CustomerService.VerifyCustomerSignUp(r.Context(), &req)
+	err = pr.Services.MerchantService.VerifyMerchantSignUp(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
@@ -123,7 +123,7 @@ func (pr *customerRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
 // login godoc
 // @Summary Login as a customer
 // @Description Login uses customer defined username and password to authenticate a customer.
-// @Tags Customers
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
 // @Param  Body body model.LoginReq true "All fields are mandatory"
@@ -132,7 +132,7 @@ func (pr *customerRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/login [post]
-func (pr *customerRouter) login(w http.ResponseWriter, r *http.Request) {
+func (pr *merchantRouter) login(w http.ResponseWriter, r *http.Request) {
 	req := model.LoginReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -146,7 +146,7 @@ func (pr *customerRouter) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := pr.Services.CustomerService.Login(r.Context(), &req)
+	res, err := pr.Services.MerchantService.Login(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
@@ -158,7 +158,7 @@ func (pr *customerRouter) login(w http.ResponseWriter, r *http.Request) {
 // forgotPassword godoc
 // @Summary Request OTP to reset password
 // @Description Use username and captcha to send otp to customer's registered number
-// @Tags Customers
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
 // @Param  Body body model.ForgotPasswordReq true "All fields are mandatory"
@@ -167,7 +167,7 @@ func (pr *customerRouter) login(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/forgot-password [post]
-func (pr *customerRouter) forgotPassword(w http.ResponseWriter, r *http.Request) {
+func (pr *merchantRouter) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	req := model.ForgotPasswordReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -182,7 +182,7 @@ func (pr *customerRouter) forgotPassword(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if pr.Services.CustomerService.Config.Environment == utils.EnvProduction || req.CaptchaValue != utils.DefaultCaptchaValue {
+	if pr.Services.MerchantService.Config.Environment == utils.EnvProduction || req.CaptchaValue != utils.DefaultCaptchaValue {
 		_, err = utils.VerifyCaptcha(req.CaptchaID, req.CaptchaValue)
 		if err != nil {
 			utils.HandleObjectError(w, rest_error.NewValidationError("", err))
@@ -190,7 +190,7 @@ func (pr *customerRouter) forgotPassword(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	otp, err := pr.Services.CustomerService.ForgotPassword(r.Context(), &req)
+	otp, err := pr.Services.MerchantService.ForgotPassword(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return
@@ -198,7 +198,7 @@ func (pr *customerRouter) forgotPassword(w http.ResponseWriter, r *http.Request)
 
 	var meta map[string]string
 
-	if pr.Services.CustomerService.Config.Environment != utils.EnvProduction {
+	if pr.Services.MerchantService.Config.Environment != utils.EnvProduction {
 		meta = map[string]string{"otp": otp}
 	}
 
@@ -208,7 +208,7 @@ func (pr *customerRouter) forgotPassword(w http.ResponseWriter, r *http.Request)
 // setPassword godoc
 // @Summary Set customer's password with OTP
 // @Description Set new password using OTP received during forgot-password
-// @Tags Customers
+// @Tags Merchants
 // @Accept  json
 // @Produce  json
 // @Param  Body body model.SetPasswordReq true "All fields are mandatory"
@@ -217,7 +217,7 @@ func (pr *customerRouter) forgotPassword(w http.ResponseWriter, r *http.Request)
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
 // @Router /api/v1/public/customers/set-password [post]
-func (pr *customerRouter) setPassword(w http.ResponseWriter, r *http.Request) {
+func (pr *merchantRouter) setPassword(w http.ResponseWriter, r *http.Request) {
 	req := model.SetPasswordReq{}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -232,7 +232,7 @@ func (pr *customerRouter) setPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = pr.Services.CustomerService.SetPassword(r.Context(), &req)
+	err = pr.Services.MerchantService.SetPassword(r.Context(), &req)
 	if err != nil {
 		utils.HandleObjectError(w, err)
 		return

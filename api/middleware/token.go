@@ -49,6 +49,70 @@ func AuthenticatedOnly(next http.Handler) http.Handler {
 	})
 }
 
+func AuthenticatedCustomerOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		jwtTkn := r.Header.Get(utils.AuthorizationKey)
+		if jwtTkn == "" {
+			utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Missing access token"))
+			return
+		}
+
+		jwtTkn = stripBearerFromToken(jwtTkn)
+
+		claims, err := utils.VerifyToken(jwtTkn, false)
+		if err != nil {
+			utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, err.Error()))
+			return
+		}
+
+		if !isTokenFresh(claims.Username, claims.IssuedAt) {
+			utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Session expired"))
+			return
+		}
+
+		if claims.UserType != utils.UserTypeCustomer {
+			utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusForbidden, "Not a customer"))
+			return
+		}
+
+		r.Header.Set(utils.UsernameKey, claims.Username)
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func AuthenticatedMerchantOnly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		jwtTkn := r.Header.Get(utils.AuthorizationKey)
+		if jwtTkn == "" {
+			utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Missing access token"))
+			return
+		}
+
+		jwtTkn = stripBearerFromToken(jwtTkn)
+
+		claims, err := utils.VerifyToken(jwtTkn, false)
+		if err != nil {
+			utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, err.Error()))
+			return
+		}
+
+		if !isTokenFresh(claims.Username, claims.IssuedAt) {
+			utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusUnauthorized, "Session expired"))
+			return
+		}
+
+		if claims.UserType != utils.UserTypeMerchant {
+			utils.HandleObjectError(w, rest_error.NewGenericError(http.StatusForbidden, "Not a merchant"))
+			return
+		}
+
+		r.Header.Set(utils.UsernameKey, claims.Username)
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func isTokenFresh(username string, issueTime int64) bool {
 	lastResetAt, err := utils.GetLastResetAt(username)
 	if err != nil {

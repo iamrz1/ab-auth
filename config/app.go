@@ -17,6 +17,7 @@ type AppConfig struct {
 	DSN             string
 	Database        string
 	CustomerTable   string
+	MerchantTable   string
 	AddressTable    string
 	CacheURL        string
 }
@@ -49,6 +50,10 @@ func LoadConfig() error {
 	if ct == "" {
 		log.Fatal("missing env DB_CUSTOMER_COLLECTION_NAME")
 	}
+	mt := os.Getenv("DB_MERCHANT_COLLECTION_NAME")
+	if mt == "" {
+		log.Fatal("missing env DB_MERCHANT_COLLECTION_NAME")
+	}
 
 	at := os.Getenv("DB_ADDRESS_COLLECTION_NAME")
 	if at == "" {
@@ -74,6 +79,7 @@ func LoadConfig() error {
 		DSN:             dsn,
 		Database:        dbname,
 		CustomerTable:   ct,
+		MerchantTable:   mt,
 		AddressTable:    at,
 		CacheURL:        cacheURL,
 	}
