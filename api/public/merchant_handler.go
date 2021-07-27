@@ -37,8 +37,8 @@ func (pr *publicRouter) merchantRouter() *chi.Mux {
 }
 
 // signup godoc
-// @Summary Signup a new customer
-// @Description Signup a new customer for a valid non-existing phone number
+// @Summary Signup a new merchant
+// @Description Signup a new merchant for a valid non-existing phone number
 // @Tags Merchants
 // @Accept  json
 // @Produce  json
@@ -47,7 +47,7 @@ func (pr *publicRouter) merchantRouter() *chi.Mux {
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
-// @Router /api/v1/public/customers/signup [post]
+// @Router /api/v1/public/merchants/signup [post]
 func (pr *merchantRouter) signup(w http.ResponseWriter, r *http.Request) {
 	req := model.MerchantSignupReq{}
 
@@ -86,8 +86,8 @@ func (pr *merchantRouter) signup(w http.ResponseWriter, r *http.Request) {
 }
 
 // verifySignUp godoc
-// @Summary Verify a new customer using otp
-// @Description Use customer defined otp to match it with existing reference in cache to verify a signup
+// @Summary Verify a new merchant using otp
+// @Description Use merchant defined otp to match it with existing reference in cache to verify a signup
 // @Tags Merchants
 // @Accept  json
 // @Produce  json
@@ -96,7 +96,7 @@ func (pr *merchantRouter) signup(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
-// @Router /api/v1/public/customers/verify-signup [post]
+// @Router /api/v1/public/merchants/verify-signup [post]
 func (pr *merchantRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
 	req := model.MerchantSignupVerificationReq{}
 
@@ -121,8 +121,8 @@ func (pr *merchantRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 // login godoc
-// @Summary Login as a customer
-// @Description Login uses customer defined username and password to authenticate a customer.
+// @Summary Login as a merchant
+// @Description Login uses merchant defined username and password to authenticate a merchant.
 // @Tags Merchants
 // @Accept  json
 // @Produce  json
@@ -131,7 +131,7 @@ func (pr *merchantRouter) verifySignUp(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
-// @Router /api/v1/public/customers/login [post]
+// @Router /api/v1/public/merchants/login [post]
 func (pr *merchantRouter) login(w http.ResponseWriter, r *http.Request) {
 	req := model.LoginReq{}
 
@@ -157,7 +157,7 @@ func (pr *merchantRouter) login(w http.ResponseWriter, r *http.Request) {
 
 // forgotPassword godoc
 // @Summary Request OTP to reset password
-// @Description Use username and captcha to send otp to customer's registered number
+// @Description Use username and captcha to send otp to merchant's registered number
 // @Tags Merchants
 // @Accept  json
 // @Produce  json
@@ -166,7 +166,7 @@ func (pr *merchantRouter) login(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
-// @Router /api/v1/public/customers/forgot-password [post]
+// @Router /api/v1/public/merchants/forgot-password [post]
 func (pr *merchantRouter) forgotPassword(w http.ResponseWriter, r *http.Request) {
 	req := model.ForgotPasswordReq{}
 
@@ -206,7 +206,7 @@ func (pr *merchantRouter) forgotPassword(w http.ResponseWriter, r *http.Request)
 }
 
 // setPassword godoc
-// @Summary Set customer's password with OTP
+// @Summary Set merchant's password with OTP
 // @Description Set new password using OTP received during forgot-password
 // @Tags Merchants
 // @Accept  json
@@ -216,7 +216,7 @@ func (pr *merchantRouter) forgotPassword(w http.ResponseWriter, r *http.Request)
 // @Failure 400 {object} response.EmptyErrorRes
 // @Failure 404 {object} response.EmptyErrorRes
 // @Failure 500 {object} response.EmptyErrorRes
-// @Router /api/v1/public/customers/set-password [post]
+// @Router /api/v1/public/merchants/set-password [post]
 func (pr *merchantRouter) setPassword(w http.ResponseWriter, r *http.Request) {
 	req := model.SetPasswordReq{}
 
